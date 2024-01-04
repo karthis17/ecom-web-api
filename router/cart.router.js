@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getCartItems, addItemToCart, deleteItemFromCart } from "../controller/cart.controller.js";
+import { getCartItems, addItemToCart, deleteItemFromCart, updateItemQuantityCart } from "../controller/cart.controller.js";
 
 const router = new Router();
 
@@ -29,6 +29,18 @@ router.delete('/remove-cart/:id', (req, res) => {
         res.status(404).send(err);
     });
 });
+
+
+router.post('/update-qty', (req, res) => {
+    updateItemQuantityCart(req.body.id, req.body.qty, req.body.total).then((cart) => {
+        res.send(cart);
+    }).catch((err) => {
+        console.log(err);
+        res.status(404).send(err);
+    });
+});
+
+
 
 
 export default router;
