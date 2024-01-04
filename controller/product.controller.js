@@ -3,6 +3,7 @@ import { db } from "../model/product.model.js";
 let sql = {
     SELECT_PRODUCT: "SELECT * FROM products",
     SELECT_PRODUCT_BY_ID: "SELECT * FROM products WHERE id = ?",
+    UPDATE_QTY: "UPDATE products SET qty = ? WHERE productName = ?",
     INSERT_PRODUCT: "INSERT INTO products (productName, price, images, thumbnail, description, quantity, discount, about) VALUES (?,?,?,?,?,?, ?, ?)",
 };
 
@@ -48,4 +49,20 @@ export const addProduct = (productName, price, images, thumbnail, description, q
         })
     });
 
+}
+
+
+
+export const reduceQuantity = (productName, quantity) => {
+
+    return new Promise((resolve, reject) => {
+        db.run(sql.UPDATE_QTY, [quantity, productName], (err, result) => {
+            if (err) {
+                return reject(err);
+            }
+            resolve({
+                success: true, message: "Product updated successfully"
+            })
+        })
+    });
 }

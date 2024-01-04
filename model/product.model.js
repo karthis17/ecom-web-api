@@ -9,7 +9,7 @@ export const db = new sqlite3.Database(dbPath, sqlite3.OPEN_READWRITE, (err) => 
     if (err) {
         console.error(err, "hi");
     } else {
-        // db.run("ALTER TABLE cart_list ADD COLUMN total NUMBER")x
+        // db.run("UPDATE cart_list SET ordered= 0")
     }
     //     db.serialize(() => {
     //         db.run(`CREATE TABLE products (

@@ -3,9 +3,10 @@ import { db } from "../model/product.model.js";
 
 let sql = {
     SELECT_CART: "SELECT * FROM cart_list WHERE user_id = ?",
-    INSERT_CART: "INSERT INTO cart_list (productName, price, quantity, user_id, total) VALUES (?, ?,?, ?,?)",
+    INSERT_CART: "INSERT INTO cart_list (productName, price, quantity, user_id, total, ordered) VALUES (?, ?,?, ?,?, ?)",
     DELETE_CART_ITEM: "DELETE FROM cart_list WHERE id = ?",
     UPDATE_QTY: "UPDATE cart_list SET quantity = ?, total=? WHERE id = ?",
+    UPDATE_TO_ORDER: "UPDATE cart_list SET ordered = 1 where user_id = ?",
 }
 
 export const getCartItems = (user_id) => {
@@ -21,10 +22,10 @@ export const getCartItems = (user_id) => {
 
 }
 
-export const addItemToCart = (productName, price, quantity, user_id) => {
+export const addItemToCart = (productName, price, quantity, user_id, ordered) => {
 
     return new Promise((resolve, reject) => {
-        db.run(sql.INSERT_CART, [productName, price, quantity, user_id, quantity * price], function (err, result) {
+        db.run(sql.INSERT_CART, [productName, price, quantity, user_id, quantity * price, ordered], function (err, result) {
             if (err) {
                 return reject(err);
             }
@@ -59,6 +60,26 @@ export const updateItemQuantityCart = (id, quantity, total) => {
                 return reject(err);
             }
             resolve({ success: true, message: "updated successfully" });
+        });
+    });
+
+}
+
+export const updateToOrdered = (user_id) => {
+
+
+    return new Promise((resolve, reject) => {
+        db.run(sql.UPDATE_TO_ORDER, [user_id], (err, result) => {
+            if (err) {
+                return reject(err);
+            }
+            let qty = [];
+            getCartItems(user_id).then((items) => {
+                items.forEach((item) => {
+                    qty.push({ quantity: item.quantity, name: item.productName })
+                });
+                resolve({ success: true, message: "updated successfully", items: qty });
+            })
         });
     });
 
