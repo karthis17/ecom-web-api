@@ -8,7 +8,9 @@ const dbPath = path.join(__dirname, '../instance/database.db');
 export const db = new sqlite3.Database(dbPath, sqlite3.OPEN_READWRITE, (err) => {
     if (err) {
         console.error(err, "hi");
-    } // else {
+    } else {
+        // db.run("ALTER TABLE cart_list ADD COLUMN total NUMBER")x
+    }
     //     db.serialize(() => {
     //         db.run(`CREATE TABLE products (
     //             id TEXT,
