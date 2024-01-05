@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getProducts, getProductByID, addProduct, reduceQuantity } from "../controller/product.controller.js";
+import { getProducts, getProductByID, addProduct, reduceQuantity, filter } from "../controller/product.controller.js";
 
 const router = new Router();
 
@@ -32,6 +32,16 @@ router.post('/qty-red', (req, res) => {
     });
 });
 
+
+router.post('/like', (req, res) => {
+    console.log(req.body);
+    filter(req.body.price, req.body.about).then((ress) => {
+        console.log(ress);
+        res.send(ress);
+    }).catch((err) => {
+        res.status(404).send(err);
+    });
+})
 
 
 export default router;

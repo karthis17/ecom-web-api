@@ -80,3 +80,35 @@ export const reduceQuantity = (productName, quantity) => {
         });
     });
 }
+
+export const filter = (price, about) => {
+
+    return new Promise((resolve, reject) => {
+
+        let query = sql.SELECT_PRODUCT;
+
+        let params = [];
+
+        if (price && about) {
+            query += ' WHERE price > ? AND price < ? AND LOWER(about) LIKE ? COLLATE NOCASE';
+            params.push(price[0], price[1], `%${about}%`);
+        } else if (price) {
+            query += ' WHERE price >= ? AND price <= ? ';
+            params.push(price[0], price[1]);
+        } else if (about) {
+            query += ' WHERE LOWER(about) LIKE ? COLLATE NOCASE';
+            params.push(`%${about}%`);
+        }
+
+        db.all(query, params, (err, result) => {
+            console.log('Generated Query:', query);
+            console.log('Parameters:', params);
+
+            if (err) {
+                return reject(err);
+            }
+            resolve(result);
+        });
+    });
+
+}

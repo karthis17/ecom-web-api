@@ -9,6 +9,13 @@ export const db = new sqlite3.Database(dbPath, sqlite3.OPEN_READWRITE, (err) => 
     if (err) {
         console.error(err, "hi");
     } else {
+        // db.all('SELECT * FROM products WHERE LOWER(about) LIKE ? COLLATE NOCASE', [`%${'8gb'}%`], (err, res) => {
+        //     console.log(err, res);
+        // });
+
+        // db.run("DROP TABLE products");
+        // db.run(`CREATE TABLE products (id TEXT, productName TEXT, price INTEGER NOT NULL, images TEXT, thumbnail TEXT, description TEXT NOT NULL, quantity INTEGER, discount INTEGER NOT NULL, about TEXT)`)
+
         // db.run(`ALTER TABLE order_history ADD COLUMN date TEXT`, (err) => {
         //     console.error(err, "hi");
         // })
