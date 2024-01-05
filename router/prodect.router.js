@@ -25,6 +25,7 @@ router.get('/id/:id', (req, res) => {
 
 router.post('/qty-red', (req, res) => {
     reduceQuantity(req.body.name, req.body.quantity).then((ress) => {
+        console.log(req.body)
         res.send(ress);
     }).catch((err) => {
         res.status(404).send(err);

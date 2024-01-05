@@ -2,17 +2,19 @@ import { db } from "../model/product.model.js";
 
 
 let sql = {
-    SELECT_CART: "SELECT * FROM cart_list WHERE user_id = ?",
+    SELECT_CART: "SELECT * FROM cart_list WHERE user_id = ? AND ordered = ?",
     INSERT_CART: "INSERT INTO cart_list (productName, price, quantity, user_id, total, ordered) VALUES (?, ?,?, ?,?, ?)",
     DELETE_CART_ITEM: "DELETE FROM cart_list WHERE id = ?",
     UPDATE_QTY: "UPDATE cart_list SET quantity = ?, total=? WHERE id = ?",
     UPDATE_TO_ORDER: "UPDATE cart_list SET ordered = 1 where user_id = ?",
+    SELECT_ORDERED: "SELECT * FROM cart_list WHERE order_id = ? AND user_id = ?",
+    UPDATE_ORDER_ID: `UPDATE cart_list SET order_id = ? WHERE user_id = ? AND ordered = 1 AND order_id IS NULL`,
 }
 
-export const getCartItems = (user_id) => {
+export const getCartItems = (user_id, orderd = 0) => {
 
     return new Promise((resolve, reject) => {
-        db.all(sql.SELECT_CART, [user_id], (err, result) => {
+        db.all(sql.SELECT_CART, [user_id, orderd], (err, result) => {
             if (err) {
                 return reject(err);
             }
@@ -74,12 +76,38 @@ export const updateToOrdered = (user_id) => {
                 return reject(err);
             }
             let qty = [];
-            getCartItems(user_id).then((items) => {
-                items.forEach((item) => {
+            getCartItems(user_id, 1).then(async (items) => {
+                await items.forEach((item) => {
                     qty.push({ quantity: item.quantity, name: item.productName })
-                });
+                })
                 resolve({ success: true, message: "updated successfully", items: qty });
-            })
+            });
+        });
+    });
+
+}
+
+export const addOrderId = (user_id, order_id) => {
+    console.log(user_id, order_id);
+    return new Promise((resolve, reject) => {
+        db.run(sql.UPDATE_ORDER_ID, [order_id, user_id], (err, res) => {
+            if (err) {
+                return reject(err);
+            }
+            resolve({ success: true, message: "updated successfully" })
+        });
+    });
+}
+
+
+export const getOrderedItems = (order_id, user_id) => {
+
+    return new Promise((resolve, reject) => {
+        db.all(sql.SELECT_ORDERED, [order_id, user_id], (err, res) => {
+            if (err) {
+                return reject(err);
+            }
+            resolve(res);
         });
     });
 

@@ -9,7 +9,12 @@ export const db = new sqlite3.Database(dbPath, sqlite3.OPEN_READWRITE, (err) => 
     if (err) {
         console.error(err, "hi");
     } else {
-        // db.run("UPDATE cart_list SET ordered= 0")
+        // db.run(`ALTER TABLE order_history ADD COLUMN date TEXT`, (err) => {
+        //     console.error(err, "hi");
+        // })
+        // db.run('DELETE FROM order_history')
+        // db.run('DELETE FROM cart_list');
+        // db.run("ALTER TABLE cart_list ADD COLUMN order_id INTEGER FOREIGN KEY (order_id) REFERENCES order_history(id)")
     }
     //     db.serialize(() => {
     //         db.run(`CREATE TABLE products (
