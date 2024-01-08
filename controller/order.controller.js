@@ -27,7 +27,7 @@ export const addItemToOrder = (user_id, phone, payment, address) => {
 
         let date = new Date();
 
-        date = `${date.getDay()}-${date.getMonth() + 1}-${date.getFullYear()}`;
+        date = `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
 
         db.run(sql.INSERT_ORDERS, [user_id, phone, address, payment, date], async function (err, result) {
             if (err) {
