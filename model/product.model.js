@@ -9,6 +9,15 @@ export const db = new sqlite3.Database(dbPath, sqlite3.OPEN_READWRITE, (err) => 
     if (err) {
         console.error(err, "hi");
     } else {
+        // db.run("CREATE TABLE IF NOT EXISTS admin_users (id INTEGER PRIMARY KEY, usernaem TEXT, password TEXT)");
+        // db.run("INSERT INTO admin_users (usernaem, password) VALUES ('root', 'password')")
+        // db.run('CREATE TABLE cart_list (id INTEGER PRIMARY KEY, user_id INTEGER, quantity INTEGER, productName TEXT, price REAL, order_id INTEGER, product_id INTEGER, FOREIGN KEY (user_id) REFERENCES user(id), FOREIGN KEY (order_id) REFERENCES order_history(id), FOREIGN KEY (product_id) REFERENCES products(id))', err => {
+        //     if (err) {
+        //         console.error(err);
+        //     }
+        // });
+
+        // db.run('DELETE FROM delivery_deatails')
         // db.run('CREATE TABLE delivery_deatails(id INTEGER PRIMARY KEY, address TEXT, phone TEXT, email TEXT, user_id INTEGER, FOREIGN KEY (user_id) REFERENCES user(id) )')
         // db.all('SELECT * FROM products WHERE LOWER(about) LIKE ? COLLATE NOCASE', [`%${'8gb'}%`], (err, res) => {
         //     console.log(err, res);
@@ -22,7 +31,7 @@ export const db = new sqlite3.Database(dbPath, sqlite3.OPEN_READWRITE, (err) => 
         // })
         // db.run('DELETE FROM order_history')
         // db.run('DELETE FROM cart_list');
-        // db.run("ALTER TABLE cart_list ADD COLUMN order_id INTEGER FOREIGN KEY (order_id) REFERENCES order_history(id)")
+        // db.run("ALTER TABLE cart_list ADD COLUMN total INTEGER ")
     }
     //     db.serialize(() => {
     //         db.run(`CREATE TABLE products (

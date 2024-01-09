@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getProducts, getProductByID, addProduct, reduceQuantity, filter } from "../controller/product.controller.js";
+import { getProducts, getProductByID, addProduct, reduceQuantity, filter, update, deleteProduct } from "../controller/product.controller.js";
 
 const router = new Router();
 
@@ -41,6 +41,34 @@ router.post('/like', (req, res) => {
     }).catch((err) => {
         res.status(404).send(err);
     });
+});
+
+
+router.put('/update', (req, res) => {
+    update(req.body.id, req.body.productName, req.body.price, req.body.images, req.body.thumbnail, req.body.description, req.body.quantity, req.body.discount, req.body.about).then((ress) => {
+        res.send(ress);
+    }).catch((err) => {
+        res.status(404).send(err);
+    })
+})
+
+
+router.delete('/delete/:id', (req, res) => {
+    deleteProduct(req.params.id).then((ress) => {
+        res.send(ress)
+    }).catch((err) => {
+        res.status(404).send(err);
+    });
+});
+
+router.post('/add', (req, res) => {
+    console.log(req.body);
+    addProduct(req.body.id, req.body.productName, req.body.price, req.body.images, req.body.thumbnail, req.body.description, req.body.quantity, req.body.discount, req.body.about).then((ress) => {
+        res.status(200).send(ress);
+    }).catch((err) => {
+        res.status(404).send(err);
+    });
+
 })
 
 

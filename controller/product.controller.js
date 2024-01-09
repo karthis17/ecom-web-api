@@ -4,7 +4,9 @@ let sql = {
     SELECT_PRODUCT: "SELECT * FROM products",
     SELECT_PRODUCT_BY_ID: "SELECT * FROM products WHERE id = ? OR productName = ?",
     UPDATE_QTY: "UPDATE products SET quantity = ? WHERE id = ?",
-    INSERT_PRODUCT: "INSERT INTO products (productName, price, images, thumbnail, description, quantity, discount, about) VALUES (?,?,?,?,?,?, ?, ?)",
+    INSERT_PRODUCT: "INSERT INTO products (id, productName, price, images, thumbnail, description, quantity, discount, about) VALUES (?,?,?,?,?,?,?, ?, ?)",
+    UPDATE_PRODUCT: "UPDATE products SET productName=?, price=?, images=?, thumbnail=?, description=?, quantity=?, discount=?, about=? WHERE id = ?",
+    DELETE_PRODUCT: "DELETE FROM products WHERE id = ? OR productName=?"
 };
 
 export const getProducts = () => {
@@ -36,11 +38,12 @@ export const getProductByID = (id_or_name) => {
 
 }
 
-export const addProduct = (productName, price, images, thumbnail, description, quantity, discount, about) => {
+export const addProduct = (id, productName, price, images, thumbnail, description, quantity, discount, about) => {
 
 
     return new Promise((resolve, reject) => {
-        db.run(sql.INSERT_PRODUCT, [productName, price, images, thumbnail, description, quantity, discount, about], function (err, result) {
+        console.log(id, productName, price, images, thumbnail, description, quantity, discount)
+        db.run(sql.INSERT_PRODUCT, [id, productName, price, images, thumbnail, description, quantity, discount, about], function (err, result) {
             if (err) {
                 return reject(err);
             } else {
@@ -111,4 +114,31 @@ export const filter = (price, about) => {
         });
     });
 
+}
+
+export const update = (id, productName, price, images, thumbnail, description, quantity, discount, about) => {
+    return new Promise((resolve, reject) => {
+        db.run(sql.UPDATE_PRODUCT, [productName, price, images, thumbnail, description, quantity, discount, about, id], (err, result) => {
+            if (err) {
+                return reject(err);
+            }
+            resolve({
+                success: true,
+                message: 'Updated Product'
+            });
+        });
+    })
+}
+
+export const deleteProduct = (id) => {
+    return new Promise((resolve, reject) => {
+        console.log(id)
+        db.run(sql.DELETE_PRODUCT, [id, id], (err, result) => {
+            if (err) {
+                return reject(err);
+            }
+            resolve({ success: true, message: 'Deleted Product' });
+        });
+
+    });
 }

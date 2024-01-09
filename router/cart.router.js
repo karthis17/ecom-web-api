@@ -14,7 +14,7 @@ router.get('/get-cart/:user_id', (req, res) => {
 });
 
 router.post('/new-cart', (req, res) => {
-    addItemToCart(req.body.productName, req.body.price, req.body.quantity, req.body.user_id, req.body.ordered).then((cart) => {
+    addItemToCart(req.body.product_id, req.body.productName, req.body.price, req.body.quantity, req.body.user_id, req.body.ordered).then((cart) => {
         res.send(cart)
     }).catch((err) => {
         res.status(404).send(err)
