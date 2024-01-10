@@ -6,7 +6,8 @@ let sql = {
     UPDATE_QTY: "UPDATE products SET quantity = ? WHERE id = ?",
     INSERT_PRODUCT: "INSERT INTO products (id, productName, price, images, thumbnail, description, quantity, discount, about) VALUES (?,?,?,?,?,?,?, ?, ?)",
     UPDATE_PRODUCT: "UPDATE products SET productName=?, price=?, images=?, thumbnail=?, description=?, quantity=?, discount=?, about=? WHERE id = ?",
-    DELETE_PRODUCT: "DELETE FROM products WHERE id = ? OR productName=?"
+    DELETE_PRODUCT: "DELETE FROM products WHERE id = ? OR productName=?",
+    UPDATE_RATING: "UPDATE products SET rating = ? WHERE id = ?"
 };
 
 export const getProducts = () => {
@@ -84,7 +85,7 @@ export const reduceQuantity = (productName, quantity) => {
     });
 }
 
-export const filter = (price, about) => {
+export const filter = (price, about, category) => {
 
     return new Promise((resolve, reject) => {
 
@@ -92,15 +93,29 @@ export const filter = (price, about) => {
 
         let params = [];
 
-        if (price && about) {
+        if (price && about && category) {
+            query += ' WHERE price > ? AND price < ? AND LOWER(about) LIKE ? COLLATE NOCASE AND LOWER(category) LIKE ?';
+            params.push(price[0], price[1], `%${about}%`, `%${category}%`);
+        }
+        else if (price && about) {
             query += ' WHERE price > ? AND price < ? AND LOWER(about) LIKE ? COLLATE NOCASE';
             params.push(price[0], price[1], `%${about}%`);
-        } else if (price) {
+        } else if (price && category) {
+            query += ' WHERE price > ? AND price < ? AND LOWER(category) LIKE ? COLLATE NOCASE';
+            params.push(price[0], price[1], `%${category}%`);
+        } else if (category && about) {
+            query += ' WHERE LOWER(category) LIKE ? COLLATE NOCASE AND LOWER(about) LIKE ? COLLATE NOCASE';
+            params.push(`%${category}%`, `%${about}%`);
+        }
+        else if (price) {
             query += ' WHERE price >= ? AND price <= ? ';
             params.push(price[0], price[1]);
         } else if (about) {
             query += ' WHERE LOWER(about) LIKE ? COLLATE NOCASE';
             params.push(`%${about}%`);
+        } else {
+            query += ' WHERE LOWER(category) LIKE ? COLLATE NOCASE';
+            params.push(`%${category}%`);
         }
 
         db.all(query, params, (err, result) => {
@@ -141,4 +156,17 @@ export const deleteProduct = (id) => {
         });
 
     });
+};
+
+
+export const updateRating = (id, rating) => {
+
+    return new Promise((resolve, reject) => {
+        db.run(sql.UPDATE_RATING, [rating, id], (err, res) => {
+            if (err) return reject(err);
+
+            resolve({ success: true, message: 'Updated rating successfully' });
+        });
+    });
+
 }

@@ -9,6 +9,12 @@ export const db = new sqlite3.Database(dbPath, sqlite3.OPEN_READWRITE, (err) => 
     if (err) {
         console.error(err, "hi");
     } else {
+
+        // db.run('ALTER TABLE products ADD COLUMN rating INTEGER ')
+        // db.run('ALTER TABLE products ADD COLUMN category TEXT ')
+        // db.run('UPDATE products SET category = ?', ["PC & Laptops"])
+        // db.run('CREATE TABLE IF NOT EXISTS user_review(id INTEGER PRIMARY KEY, name TEXT, comment TEXT, rating INTEGER, product_id TEXT, FOREIGN KEY (product_id) REFERENCES products (id))')
+
         // db.run("CREATE TABLE IF NOT EXISTS admin_users (id INTEGER PRIMARY KEY, usernaem TEXT, password TEXT)");
         // db.run("INSERT INTO admin_users (usernaem, password) VALUES ('root', 'password')")
         // db.run('CREATE TABLE cart_list (id INTEGER PRIMARY KEY, user_id INTEGER, quantity INTEGER, productName TEXT, price REAL, order_id INTEGER, product_id INTEGER, FOREIGN KEY (user_id) REFERENCES user(id), FOREIGN KEY (order_id) REFERENCES order_history(id), FOREIGN KEY (product_id) REFERENCES products(id))', err => {

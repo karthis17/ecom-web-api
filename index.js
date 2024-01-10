@@ -5,8 +5,10 @@ import userRouter from './router/user.router.js';
 import cartRouter from './router/cart.router.js';
 import orderRouter from './router/order.router.js';
 import dtlRouter from './router/delivery.router.js';
+import reviewRouter from './router/review.router.js';
 import { admin, adminLogin } from './controller/admin.controller.js';
 import cookieParser from 'cookie-parser';
+
 
 const app = express();
 const port = 3000;
@@ -24,6 +26,8 @@ app.use("/api/user", userRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/order", orderRouter);
 app.use("/api/deliver-details", dtlRouter);
+app.use("/api/reviews", reviewRouter);
+
 
 app.post('/admin', function (req, res) {
     adminLogin(req.body.username, req.body.password).then(ress => {

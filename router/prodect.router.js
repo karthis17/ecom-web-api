@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getProducts, getProductByID, addProduct, reduceQuantity, filter, update, deleteProduct } from "../controller/product.controller.js";
+import { getProducts, getProductByID, addProduct, reduceQuantity, filter, update, deleteProduct, updateRating } from "../controller/product.controller.js";
 
 const router = new Router();
 
@@ -34,9 +34,7 @@ router.post('/qty-red', (req, res) => {
 
 
 router.post('/like', (req, res) => {
-    console.log(req.body);
-    filter(req.body.price, req.body.about).then((ress) => {
-        console.log(ress);
+    filter(req.body.price, req.body.about, req.body.category).then((ress) => {
         res.send(ress);
     }).catch((err) => {
         res.status(404).send(err);
@@ -69,7 +67,16 @@ router.post('/add', (req, res) => {
         res.status(404).send(err);
     });
 
-})
+});
+
+router.post('/update-rating', (req, res) => {
+    console.log(req.body);
+    updateRating(req.body.id, req.body.rating).then((ress) => {
+        res.status(200).send(ress);
+    }).catch((err) => {
+        res.status(500).send(err);
+    });
+});
 
 
 export default router;
