@@ -2,7 +2,7 @@ import { db } from "../model/product.model.js";
 import { addOrderId } from "./cart.controller.js";
 
 let sql = {
-    SELECT_ORDERS: 'SELECT * FROM order_history WHERE user_id = ?',
+    SELECT_ORDERS: 'SELECT * FROM order_history WHERE user_id = ? ORDER BY id DESC',
     INSERT_ORDERS: 'INSERT INTO order_history (user_id, phone, address, payment_method, date) VALUES (?,?,?,?,?)',
 }
 
