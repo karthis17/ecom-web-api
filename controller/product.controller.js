@@ -103,10 +103,10 @@ export const filter = (price, about, category) => {
             params.push(price[0], price[1], `%${about}%`, `%${category}%`);
         }
         else if (price && about) {
-            query += ' WHERE price > ? AND price < ? AND LOWER(about) LIKE ? COLLATE NOCASE';
+            query += ' WHERE price > ? AND price < ? AND LOWER(about) LIKE ? COLLATE NOCASE ORDER BY amount';
             params.push(price[0], price[1], `%${about}%`);
         } else if (price && category) {
-            query += ' WHERE price > ? AND price < ? AND LOWER(category) LIKE ? COLLATE NOCASE';
+            query += ' WHERE price > ? AND price < ? AND LOWER(category) LIKE ? COLLATE NOCASE ORDER BY amount';
             params.push(price[0], price[1], `%${category}%`);
         } else if (category && about) {
             query += ' WHERE LOWER(category) LIKE ? COLLATE NOCASE AND LOWER(about) LIKE ? COLLATE NOCASE';
