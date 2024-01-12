@@ -13,7 +13,7 @@ let sql = {
 export const getProducts = () => {
 
     return new Promise((resolve, reject) => {
-        db.all(sql.SELECT_PRODUCT, (err, products) => {
+        db.all(sql.SELECT_PRODUCT + ' ORDER BY amount', (err, products) => {
             if (err) {
                 return reject(err);
             }
@@ -99,21 +99,21 @@ export const filter = (price, about, category) => {
         let params = [];
 
         if (price && about && category) {
-            query += ' WHERE price > ? AND price < ? AND LOWER(about) LIKE ? COLLATE NOCASE AND LOWER(category) LIKE ?';
+            query += ' WHERE amount > ? AND amount < ? AND LOWER(about) LIKE ? COLLATE NOCASE AND LOWER(category) LIKE ?';
             params.push(price[0], price[1], `%${about}%`, `%${category}%`);
         }
         else if (price && about) {
-            query += ' WHERE price > ? AND price < ? AND LOWER(about) LIKE ? COLLATE NOCASE ORDER BY amount';
+            query += ' WHERE amount >= ? AND amount <= ? AND LOWER(about) LIKE ? COLLATE NOCASE ORDER BY amount';
             params.push(price[0], price[1], `%${about}%`);
         } else if (price && category) {
-            query += ' WHERE price > ? AND price < ? AND LOWER(category) LIKE ? COLLATE NOCASE ORDER BY amount';
+            query += ' WHERE amount >= ? AND amount <= ? AND LOWER(category) LIKE ? COLLATE NOCASE ORDER BY amount';
             params.push(price[0], price[1], `%${category}%`);
         } else if (category && about) {
             query += ' WHERE LOWER(category) LIKE ? COLLATE NOCASE AND LOWER(about) LIKE ? COLLATE NOCASE';
             params.push(`%${category}%`, `%${about}%`);
         }
         else if (price) {
-            query += ' WHERE price >= ? AND price <= ? ';
+            query += ' WHERE amount >= ? AND amount <= ? ';
             params.push(price[0], price[1]);
         } else if (about) {
             query += ' WHERE LOWER(about) LIKE ? COLLATE NOCASE';

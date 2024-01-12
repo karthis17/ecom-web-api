@@ -9,16 +9,100 @@ export const db = new sqlite3.Database(dbPath, sqlite3.OPEN_READWRITE, (err) => 
     if (err) {
         console.error(err, "hi");
     } else {
+        const productsData = [
+            {
+                "id": "1",
+                "productName": "ASUS Vivobook 16X",
+                "specifications": {
+                    "brand": "ASUS",
+                    "model": "Vivobook 16X",
+                    "ram": "8GB",
+                    "rom": "1TB",
+                    "processor": "i5 12th Gen"
+                }
+            },
+            {
+                "id": "2",
+                "productName": "HP Pavilion x360 Convertible",
+                "specifications": {
+                    "brand": "HP",
+                    "model": "Pavilion x360 Convertible",
+                    "ram": "16GB",
+                    "rom": "512GB SSD",
+                    "processor": "Intel Core i7"
+                }
+            },
+            {
+                "id": "3",
+                "productName": "Dell Inspiron 14",
+                "specifications": {
+                    "brand": "Dell",
+                    "model": "Inspiron 14",
+                    "ram": "8GB",
+                    "rom": "256GB SSD",
+                    "processor": "Ryzen 5"
+                }
+            },
+            {
+                "id": "4",
+                "productName": "Lenovo ThinkPad E15",
+                "specifications": {
+                    "brand": "Lenovo",
+                    "model": "ThinkPad E15",
+                    "ram": "16GB",
+                    "rom": "1TB SSD",
+                    "processor": "Intel Core i5"
+                }
+            },
+            {
+                "id": "5",
+                "productName": "Acer Swift 3",
+                "specifications": {
+                    "brand": "Acer",
+                    "model": "Swift 3",
+                    "ram": "16GB",
+                    "rom": "512GB SSD",
+                    "processor": "AMD Ryzen 7"
+                }
+            },
+            {
+                "id": "6",
+                "productName": "Apple MacBook Air",
+                "specifications": {
+                    "brand": "Apple",
+                    "model": "MacBook Air",
+                    "ram": "8GB",
+                    "rom": "256GB SSD",
+                    "processor": "M1 Chip"
+                }
+            },
+            {
+                "id": "7",
+                "productName": "Microsoft Surface Laptop 4",
+                "specifications": {
+                    "brand": "Microsoft",
+                    "model": "Surface Laptop 4",
+                    "ram": "8GB",
+                    "rom": "256GB SSD",
+                    "processor": "AMD Ryzen 5"
+                }
+            }
+            // Add more products with specifications as needed
+        ];
+
+        // The rest of your code...
+
         // db.all("SELECT * FROM products", (err, products) => {
         //     if (!err) {
         //         products.forEach(product => {
-        //             let amount = product.price - (product.price * (product.discount / 100));
-        //             console.log(amount);
-        //             db.run("UPDATE products SET amount = ? WHERE id =?", [amount, product.id], (err) => console.log(err));
+        // productsData.forEach(product => {
+
+        //     db.run("UPDATE products SET specifiction = ? WHERE id =?", [JSON.stringify(product.specifications), product.id], (err) => console.log(err));
+        // })
         //         });
         //     }
         // })
-        // db.run("ALTER TABLE products ADD COLUMN amount REAL", (err, res) => { console.log(err, res) })
+        // db.run("ALTER TABLE products ADD COLUMN specifiction TEXT", (err, res) => { console.log(err, res) })
         // db.run('ALTER TABLE products ADD COLUMN rating INTEGER ')
         // db.run('ALTER TABLE products ADD COLUMN category TEXT ')
         // db.run('UPDATE products SET category = ?', ["PC & Laptops"])
