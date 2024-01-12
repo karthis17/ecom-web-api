@@ -9,7 +9,16 @@ export const db = new sqlite3.Database(dbPath, sqlite3.OPEN_READWRITE, (err) => 
     if (err) {
         console.error(err, "hi");
     } else {
-
+        // db.all("SELECT * FROM products", (err, products) => {
+        //     if (!err) {
+        //         products.forEach(product => {
+        //             let amount = product.price - (product.price * (product.discount / 100));
+        //             console.log(amount);
+        //             db.run("UPDATE products SET amount = ? WHERE id =?", [amount, product.id], (err) => console.log(err));
+        //         });
+        //     }
+        // })
+        // db.run("ALTER TABLE products ADD COLUMN amount REAL", (err, res) => { console.log(err, res) })
         // db.run('ALTER TABLE products ADD COLUMN rating INTEGER ')
         // db.run('ALTER TABLE products ADD COLUMN category TEXT ')
         // db.run('UPDATE products SET category = ?', ["PC & Laptops"])

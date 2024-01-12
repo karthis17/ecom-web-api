@@ -4,7 +4,7 @@ let sql = {
     SELECT_PRODUCT: "SELECT * FROM products",
     SELECT_PRODUCT_BY_ID: "SELECT * FROM products WHERE id = ? OR productName = ?",
     UPDATE_QTY: "UPDATE products SET quantity = ? WHERE id = ?",
-    INSERT_PRODUCT: "INSERT INTO products (id, productName, price, images, thumbnail, description, quantity, discount, about, category) VALUES (?,?,?,?,?,?,?, ?, ?, ?)",
+    INSERT_PRODUCT: "INSERT INTO products (id, productName, price, images, thumbnail, description, quantity, discount, about, category, amount) VALUES (?,?,?,?,?,?,?, ?, ?, ?,?)",
     UPDATE_PRODUCT: "UPDATE products SET productName=?, price=?, images=?, thumbnail=?, description=?, quantity=?, discount=?, about=? WHERE id = ?",
     DELETE_PRODUCT: "DELETE FROM products WHERE id = ? OR productName=?",
     UPDATE_RATING: "UPDATE products SET rating = ? WHERE id = ?"
@@ -42,9 +42,14 @@ export const getProductByID = (id_or_name) => {
 export const addProduct = (id, productName, price, images, thumbnail, description, quantity, discount, about, category) => {
 
 
+
     return new Promise((resolve, reject) => {
+        let amount = price;
         console.log(id, productName, price, images, thumbnail, description, quantity, discount, category)
-        db.run(sql.INSERT_PRODUCT, [id, productName, price, images, thumbnail, description, quantity, discount, about, category], function (err, result) {
+        if (discount) {
+            amount = price - (price * (discount / 100));
+        }
+        db.run(sql.INSERT_PRODUCT, [id, productName, price, images, thumbnail, description, quantity, discount, about, category, amount], function (err, result) {
             if (err) {
                 return reject(err);
             } else {
@@ -175,7 +180,7 @@ export const updateRating = (id, rating) => {
 export const getProductsCate = (category) => {
 
     return new Promise((resolve, reject) => {
-        db.all("SELECT * FROM products WHERE category LIKE ?", [`%${category}%`], (err, ress) => {
+        db.all("SELECT * FROM products WHERE category LIKE ? ORDER BY amount", [`%${category}%`], (err, ress) => {
             if (err) {
                 return reject(err);
             }
