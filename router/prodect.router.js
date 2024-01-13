@@ -53,7 +53,7 @@ router.post('/like', (req, res) => {
 
 
 router.put('/update', (req, res) => {
-    update(req.body.id, req.body.productName, req.body.price, req.body.images, req.body.thumbnail, req.body.description, req.body.quantity, req.body.discount, req.body.about).then((ress) => {
+    update(req.body.id, req.body.productName, req.body.price, req.body.images, req.body.thumbnail, req.body.description, req.body.quantity, req.body.discount, req.body.about, req.body.category).then((ress) => {
         res.send(ress);
     }).catch((err) => {
         res.status(404).send(err);

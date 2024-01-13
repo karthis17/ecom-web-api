@@ -1,11 +1,12 @@
 import { db } from "../model/product.model.js";
+import fs from "fs";
 
 let sql = {
     SELECT_PRODUCT: "SELECT * FROM products",
     SELECT_PRODUCT_BY_ID: "SELECT * FROM products WHERE id = ? OR productName = ?",
     UPDATE_QTY: "UPDATE products SET quantity = ? WHERE id = ?",
     INSERT_PRODUCT: "INSERT INTO products (id, productName, price, images, thumbnail, description, quantity, discount, about, category, amount) VALUES (?,?,?,?,?,?,?, ?, ?, ?,?)",
-    UPDATE_PRODUCT: "UPDATE products SET productName=?, price=?, images=?, thumbnail=?, description=?, quantity=?, discount=?, about=? WHERE id = ?",
+    UPDATE_PRODUCT: "UPDATE products SET productName=?, price=?, images=?, thumbnail=?, description=?, quantity=?, discount=?, about=?, amount=?, category=?  WHERE id = ?",
     DELETE_PRODUCT: "DELETE FROM products WHERE id = ? OR productName=?",
     UPDATE_RATING: "UPDATE products SET rating = ? WHERE id = ?"
 };
@@ -18,6 +19,7 @@ export const getProducts = () => {
                 return reject(err);
             }
 
+            // fs.writeFile('./data.json', JSON.stringify(products), (err) => { console.log(err); })
             resolve(products);
         });
     });
@@ -79,7 +81,7 @@ export const reduceQuantity = (productName, quantity) => {
 
             db.run(sql.UPDATE_QTY, [reducedQuantity, row.id], (err, result) => {
                 if (err) {
-                    return reject(updateErr);
+                    return reject(err);
                 }
                 resolve({
                     success: true,
@@ -136,9 +138,13 @@ export const filter = (price, about, category) => {
 
 }
 
-export const update = (id, productName, price, images, thumbnail, description, quantity, discount, about) => {
+export const update = (id, productName, price, images, thumbnail, description, quantity, discount, about, category) => {
     return new Promise((resolve, reject) => {
-        db.run(sql.UPDATE_PRODUCT, [productName, price, images, thumbnail, description, quantity, discount, about, id], (err, result) => {
+        let amount = price;
+        if (discount) {
+            amount = price - (price * (discount / 100));
+        }
+        db.run(sql.UPDATE_PRODUCT, [productName, price, images, thumbnail, description, quantity, discount, about, amount, category, id], (err, result) => {
             if (err) {
                 return reject(err);
             }
