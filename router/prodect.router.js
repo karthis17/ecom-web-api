@@ -70,7 +70,6 @@ router.delete('/delete/:id', (req, res) => {
 });
 
 router.post('/add', (req, res) => {
-    console.log(req.body);
     addProduct(req.body.id, req.body.productName, req.body.price, req.body.images, req.body.thumbnail, req.body.description, req.body.quantity, req.body.discount, req.body.about, req.body.category).then((ress) => {
         res.status(200).send(ress);
     }).catch((err) => {
@@ -80,7 +79,7 @@ router.post('/add', (req, res) => {
 });
 
 router.post('/update-rating', (req, res) => {
-    console.log(req.body);
+
     updateRating(req.body.id, req.body.rating).then((ress) => {
         res.status(200).send(ress);
     }).catch((err) => {
