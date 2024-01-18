@@ -28,7 +28,8 @@ export const register = async (name, email, password) => {
         if (await getUser(email)) {
             return {
                 success: false,
-                message: 'User already exists.'
+                message: 'User already exists.',
+                err: 'email'
             };
         }
         return new Promise((resolve, reject) => {
@@ -63,7 +64,8 @@ export const login = async (email, password) => {
         if (!existingUser) {
             return {
                 success: false,
-                message: 'Invalid email id'
+                message: 'Invalid email id',
+                err: 'email'
             }
         }
         const isValid = await bcrypt.compare(password, existingUser.password);
@@ -71,7 +73,8 @@ export const login = async (email, password) => {
         if (!isValid) {
             return {
                 success: false,
-                message: "Invalid password"
+                message: "Invalid password",
+                err: 'password'
             }
         }
 
