@@ -5,8 +5,8 @@ let sql = {
     SELECT_PRODUCT: "SELECT * FROM products",
     SELECT_PRODUCT_BY_ID: "SELECT * FROM products WHERE id = ? OR productName = ?",
     UPDATE_QTY: "UPDATE products SET quantity = ? WHERE id = ?",
-    INSERT_PRODUCT: "INSERT INTO products (id, productName, price, images, thumbnail, description, quantity, discount, about, category, amount) VALUES (?,?,?,?,?,?,?, ?, ?, ?,?)",
-    UPDATE_PRODUCT: "UPDATE products SET productName=?, price=?, images=?, thumbnail=?, description=?, quantity=?, discount=?, about=?, amount=?, category=?  WHERE id = ?",
+    INSERT_PRODUCT: "INSERT INTO products (id, productName, price, images, thumbnail, description, quantity, discount, about, category, amount,specifiction ) VALUES (?,?,?,?,?,?,?, ?, ?, ?,?)",
+    UPDATE_PRODUCT: "UPDATE products SET productName=?, price=?, images=?, thumbnail=?, description=?, quantity=?, discount=?, about=?, amount=?, category=?, specifiction=?  WHERE id = ?",
     DELETE_PRODUCT: "DELETE FROM products WHERE id = ? OR productName=?",
     UPDATE_RATING: "UPDATE products SET rating = ? WHERE id = ?"
 };
@@ -41,7 +41,7 @@ export const getProductByID = (id_or_name) => {
 
 }
 
-export const addProduct = (id, productName, price, images, thumbnail, description, quantity, discount, about, category) => {
+export const addProduct = (id, productName, price, images, thumbnail, description, quantity, discount, about, category, spec) => {
 
 
 
@@ -51,7 +51,7 @@ export const addProduct = (id, productName, price, images, thumbnail, descriptio
         if (discount) {
             amount = price - (price * (discount / 100));
         }
-        db.run(sql.INSERT_PRODUCT, [id, productName, price, images, thumbnail, description, quantity, discount, about, category, amount], function (err, result) {
+        db.run(sql.INSERT_PRODUCT, [id, productName, price, images, thumbnail, description, quantity, discount, about, category, amount, JSON.stringify(spec)], function (err, result) {
             if (err) {
                 return reject(err);
             } else {
@@ -138,13 +138,13 @@ export const filter = (price, about, category) => {
 
 }
 
-export const update = (id, productName, price, images, thumbnail, description, quantity, discount, about, category) => {
+export const update = (id, productName, price, images, thumbnail, description, quantity, discount, about, category, spec) => {
     return new Promise((resolve, reject) => {
         let amount = price;
         if (discount) {
             amount = price - (price * (discount / 100));
         }
-        db.run(sql.UPDATE_PRODUCT, [productName, price, images, thumbnail, description, quantity, discount, about, amount, category, id], (err, result) => {
+        db.run(sql.UPDATE_PRODUCT, [productName, price, images, thumbnail, description, quantity, discount, about, amount, category, JSON.stringify(spec), id], (err, result) => {
             if (err) {
                 return reject(err);
             }
