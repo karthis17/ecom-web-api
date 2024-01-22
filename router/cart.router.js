@@ -50,7 +50,7 @@ router.get('/ordered/:user_id', (req, res) => {
 });
 
 router.post('/get-ordered-items', (req, res) => {
-    getOrderedItems(req.body.order_id, req.body.user_id).then((result) => {
+    getOrderedItems(req.body.order_id).then((result) => {
         res.status(200).send(result);
     }).catch((err) => {
         res.status(404).send(err);

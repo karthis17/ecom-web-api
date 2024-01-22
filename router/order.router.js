@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { addItemToOrder, getOrderHistory } from "../controller/order.controller.js";
+import { addItemToOrder, getAll, getOrderHistory } from "../controller/order.controller.js";
 
 const router = new Router();
 
@@ -18,7 +18,15 @@ router.post('/addOrder', (req, res) => {
     }).catch((err) => {
         res.status(500).send(err);
     });
-})
+});
+
+router.get('/get-all-orders', (req, res) => {
+    getAll().then((orders) => {
+        res.send(orders);
+    }).catch((err) => {
+        res.status(500).send(err);
+    });
+});
 
 
 

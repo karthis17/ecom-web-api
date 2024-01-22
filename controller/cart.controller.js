@@ -7,7 +7,7 @@ let sql = {
     DELETE_CART_ITEM: "DELETE FROM cart_list WHERE id = ?",
     UPDATE_QTY: "UPDATE cart_list SET quantity = ?, total=? WHERE id = ?",
     UPDATE_TO_ORDER: "UPDATE cart_list SET ordered = 1 where user_id = ?",
-    SELECT_ORDERED: "SELECT * FROM cart_list WHERE order_id = ? AND user_id = ?",
+    SELECT_ORDERED: "SELECT * FROM cart_list WHERE order_id = ?",
     UPDATE_ORDER_ID: `UPDATE cart_list SET order_id = ? WHERE user_id = ? AND ordered = 1 AND order_id IS NULL`,
 }
 
@@ -100,10 +100,10 @@ export const addOrderId = (user_id, order_id) => {
 }
 
 
-export const getOrderedItems = (order_id, user_id) => {
+export const getOrderedItems = (order_id) => {
 
     return new Promise((resolve, reject) => {
-        db.all(sql.SELECT_ORDERED, [order_id, user_id], (err, res) => {
+        db.all(sql.SELECT_ORDERED, [order_id], (err, res) => {
             if (err) {
                 return reject(err);
             }

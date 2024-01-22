@@ -6,9 +6,9 @@ let sql = {
     SELECT_USER: "SELECT * FROM user WHERE email = ? OR id = ?",
 }
 
-const getUser = (email) => {
+export const getUser = (email) => {
     return new Promise((resolve, reject) => {
-        db.get(sql.SELECT_USER, [email], (err, result) => {
+        db.get(sql.SELECT_USER, [email, email], (err, result) => {
             if (err) {
                 return reject(err);
             } else {
