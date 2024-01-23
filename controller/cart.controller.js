@@ -55,7 +55,6 @@ export const deleteItemFromCart = (id) => {
 
 export const updateItemQuantityCart = (id, quantity, total) => {
 
-    console.log(id, quantity, total)
     return new Promise((resolve, reject) => {
         db.run(sql.UPDATE_QTY, [quantity, total, id], (err, result) => {
             if (err) {
