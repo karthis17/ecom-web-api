@@ -3,7 +3,7 @@ import { db } from "../model/product.model.js";
 
 let sql = {
     SELECT_CART: "SELECT * FROM cart_list WHERE user_id = ? AND ordered = ?",
-    INSERT_CART: "INSERT INTO cart_list (product_id, productName, price, quantity, user_id, total, ordered) VALUES (?,?, ?,?, ?,?, ?)",
+    INSERT_CART: "INSERT INTO cart_list (product_id, productName, price, quantity, user_id, total, ordered, product_qty) VALUES (?,?, ?,?, ?,?, ?, ?)",
     DELETE_CART_ITEM: "DELETE FROM cart_list WHERE id = ?",
     UPDATE_QTY: "UPDATE cart_list SET quantity = ?, total=? WHERE id = ?",
     UPDATE_TO_ORDER: "UPDATE cart_list SET ordered = 1 where user_id = ?",
@@ -24,10 +24,10 @@ export const getCartItems = (user_id, orderd = 0) => {
 
 }
 
-export const addItemToCart = (product_id, productName, price, quantity, user_id, ordered) => {
+export const addItemToCart = (product_id, productName, price, quantity, user_id, ordered, product_qty) => {
 
     return new Promise((resolve, reject) => {
-        db.run(sql.INSERT_CART, [product_id, productName, price, quantity, user_id, quantity * price, ordered], function (err, result) {
+        db.run(sql.INSERT_CART, [product_id, productName, price, quantity, user_id, quantity * price, ordered, product_qty], function (err, result) {
             if (err) {
                 return reject(err);
             }

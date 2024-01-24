@@ -1,8 +1,8 @@
 import { db } from "../model/product.model.js";
 
 const sql = {
-    INSERT_REVIEW: "INSERT INTO user_review(product_id, comment, rating, name) VALUES(?,?,?,?)",
-    SELECT_REVIEW: "SELECT * FROM user_review WHERE product_id = ?"
+    INSERT_REVIEW: "INSERT INTO product_reviews(product_id, comment, rating, name) VALUES(?,?,?,?)",
+    SELECT_REVIEW: "SELECT * FROM product_reviews WHERE product_id = ?"
 }
 
 export const addReivew = (product_id, comment, rating, user_name) => {

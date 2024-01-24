@@ -1,11 +1,11 @@
 import { db } from "../model/product.model.js";
-import fs from "fs";
+
 
 let sql = {
     SELECT_PRODUCT: "SELECT * FROM products",
     SELECT_PRODUCT_BY_ID: "SELECT * FROM products WHERE id = ? OR productName = ?",
     UPDATE_QTY: "UPDATE products SET quantity = ? WHERE id = ?",
-    INSERT_PRODUCT: "INSERT INTO products (id, productName, price, images, thumbnail, description, quantity, discount, about, category, amount,specifiction ) VALUES (?,?,?,?,?,?,?, ?, ?, ?,?)",
+    INSERT_PRODUCT: "INSERT INTO products (productName, price, images, thumbnail, description, quantity, discount, about, category, amount,specifiction ) VALUES (?,?,?,?,?,?, ?, ?, ?,?,?)",
     UPDATE_PRODUCT: "UPDATE products SET productName=?, price=?, images=?, thumbnail=?, description=?, quantity=?, discount=?, about=?, amount=?, category=?, specifiction=?  WHERE id = ?",
     DELETE_PRODUCT: "DELETE FROM products WHERE id = ? OR productName=?",
     UPDATE_RATING: "UPDATE products SET rating = ? WHERE id = ?"
@@ -14,7 +14,7 @@ let sql = {
 export const getProducts = () => {
 
     return new Promise((resolve, reject) => {
-        db.all(sql.SELECT_PRODUCT + ' ORDER BY amount', (err, products) => {
+        db.all(sql.SELECT_PRODUCT + ' ORDER BY id DESC', (err, products) => {
             if (err) {
                 return reject(err);
             }
@@ -41,18 +41,19 @@ export const getProductByID = (id_or_name) => {
 
 }
 
-export const addProduct = (id, productName, price, images, thumbnail, description, quantity, discount, about, category, spec) => {
+export const addProduct = (productName, price, images, thumbnail, description, quantity, discount, about, category, spec) => {
 
 
 
     return new Promise((resolve, reject) => {
         let amount = price;
-        console.log(id, productName, price, images, thumbnail, description, quantity, discount, category)
+        console.log(productName, price, images, thumbnail, description, quantity, discount, category)
         if (discount) {
             amount = price - (price * (discount / 100));
         }
-        db.run(sql.INSERT_PRODUCT, [id, productName, price, images, thumbnail, description, quantity, discount, about, category, amount, JSON.stringify(spec)], function (err, result) {
+        db.run(sql.INSERT_PRODUCT, [productName, price, images, thumbnail, description, quantity, discount, about, category, amount, JSON.stringify(spec)], function (err, result) {
             if (err) {
+                console.error(err);
                 return reject(err);
             } else {
                 resolve({ success: true, message: "Product added successfully", id: this.lastID });
@@ -105,10 +106,10 @@ export const filter = (price, about, category) => {
             params.push(price[0], price[1], `%${about}%`, `%${category}%`);
         }
         else if (price && about) {
-            query += ' WHERE amount >= ? AND amount <= ? AND LOWER(about) LIKE ? COLLATE NOCASE ORDER BY amount';
+            query += ' WHERE amount >= ? AND amount <= ? AND LOWER(about) LIKE ? COLLATE NOCASE ORDER BY id DESC';
             params.push(price[0], price[1], `%${about}%`);
         } else if (price && category) {
-            query += ' WHERE amount >= ? AND amount <= ? AND LOWER(category) LIKE ? COLLATE NOCASE ORDER BY amount';
+            query += ' WHERE amount >= ? AND amount <= ? AND LOWER(category) LIKE ? COLLATE NOCASE ORDER BY id DESC';
             params.push(price[0], price[1], `%${category}%`);
         } else if (category && about) {
             query += ' WHERE LOWER(category) LIKE ? COLLATE NOCASE AND LOWER(about) LIKE ? COLLATE NOCASE';
@@ -186,11 +187,27 @@ export const updateRating = (id, rating) => {
 export const getProductsCate = (category) => {
 
     return new Promise((resolve, reject) => {
-        db.all("SELECT * FROM products WHERE category LIKE ? ORDER BY amount", [`%${category}%`], (err, ress) => {
+        db.all("SELECT * FROM products WHERE category LIKE ? ORDER BY id DESC", [`%${category}%`], (err, ress) => {
             if (err) {
                 return reject(err);
             }
             resolve(ress);
         })
+    })
+}
+
+export const getAmounts = (category) => {
+    return new Promise((resolve, reject) => {
+        if (category === "all") {
+            db.all(sql.SELECT_PRODUCT + " ORDER BY amount", (err, products) => {
+                if (err) return reject(err);
+                resolve(products.map(product => product.amount));
+            })
+        } else {
+            db.all(sql.SELECT_PRODUCT + " WHERE category LIKE ? ORDER BY amount", [`%${category}%`], (err, products) => {
+                if (err) return reject(err);
+                resolve(products.map(product => product.amount));
+            })
+        }
     })
 }

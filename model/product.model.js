@@ -10,6 +10,8 @@ export const db = new sqlite3.Database(dbPath, sqlite3.OPEN_READWRITE, (err) => 
         console.error(err, "hi");
     } else {
 
+
+
     }
 });
 
