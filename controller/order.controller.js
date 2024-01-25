@@ -4,7 +4,7 @@ import { addOrderId } from "./cart.controller.js";
 let sql = {
     SELECT_ORDERS: 'SELECT * FROM order_history WHERE user_id = ? ORDER BY id DESC',
     SELECT_ALL: 'SELECT * FROM order_history ORDER BY id DESC',
-    INSERT_ORDERS: 'INSERT INTO order_history (user_id, phone, address, payment_method, date) VALUES (?,?,?,?,?)',
+    INSERT_ORDERS: 'INSERT INTO order_history (user_id, phone, address, payment_method, date, name, email) VALUES (?,?,?,?,?,?,?)',
 }
 
 
@@ -22,7 +22,7 @@ export const getOrderHistory = (user_id) => {
 }
 
 
-export const addItemToOrder = (user_id, phone, payment, address) => {
+export const addItemToOrder = (user_id, phone, payment, address, name, email) => {
 
     return new Promise((resolve, reject) => {
 
@@ -30,7 +30,7 @@ export const addItemToOrder = (user_id, phone, payment, address) => {
 
         date = `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
 
-        db.run(sql.INSERT_ORDERS, [user_id, phone, address, payment, date], async function (err, result) {
+        db.run(sql.INSERT_ORDERS, [user_id, phone, address, payment, date, name, email], async function (err, result) {
             if (err) {
                 return reject(err);
             }
