@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { addReivew, getReviews } from "../controller/review.controller.js";
+import { authonticatedUser } from "../controller/user.controller.js";
 
 const router = new Router();
 
@@ -12,7 +13,7 @@ router.get('/get-reviews/:p_id', (req, res) => {
 });
 
 
-router.post('/add-review', (req, res) => {
+router.post('/add-review', authonticatedUser, (req, res) => {
     addReivew(req.body.product_id, req.body.comment, req.body.rating, req.body.name).then((ress) => {
         res.send(ress);
     }).catch((err) => {

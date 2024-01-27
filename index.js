@@ -16,7 +16,7 @@ const port = 3000;
 app.use(express.json());
 app.use(cors({
     credentials: true,
-    origin: ["http://localhost:4200", "http://localhost:3000", "http://localhost:65347/"]
+    origin: ["http://localhost:4200", "http://localhost:3000"]
 }));
 app.use(cookieParser());
 
@@ -27,7 +27,10 @@ app.use("/api/cart", cartRouter);
 app.use("/api/order", orderRouter);
 app.use("/api/deliver-details", dtlRouter);
 app.use("/api/reviews", reviewRouter);
-
+app.get("/del", (req, res) => {
+    res.clearCookie('user');
+    res.send("hi")
+})
 
 app.post('/admin', function (req, res) {
     adminLogin(req.body.username, req.body.password).then(ress => {

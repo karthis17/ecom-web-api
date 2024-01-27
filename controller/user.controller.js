@@ -1,5 +1,9 @@
 import { db } from "../model/product.model.js";
 import bcrypt from "bcrypt";
+import jwt from 'jsonwebtoken'
+import { config } from 'dotenv';
+
+config();
 
 let sql = {
     INSERT_USER: "INSERT INTO user (name, email, password) VALUES(?, ?, ?)",
@@ -12,7 +16,6 @@ export const getUser = (email) => {
             if (err) {
                 return reject(err);
             } else {
-                console.log(result, "hiii");
                 resolve(result);
             }
         });
@@ -37,16 +40,10 @@ export const register = async (name, email, password) => {
                 if (err) {
                     return reject(err);
                 } else {
-                    db.get(sql.SELECT_USER, [this.lastID, this.lastID], (err, result) => {
-                        if (err) {
-                            return reject(err);
-                        }
-                        resolve({
-                            success: true,
-                            ...result
-                        });
-                    });
 
+                    const token = jwt.sign({ id: this.lastID, exp: Math.floor(Date.now() / 1000) + 7 * (24 * 60 * 60) }, process.env.SECRET_KEY);
+                    console.log(token);
+                    resolve({ success: true, token });
                 }
             });
         });
@@ -56,10 +53,10 @@ export const register = async (name, email, password) => {
     }
 }
 
-export const login = async (email, password) => {
+export const login = async (email1, password) => {
     try {
-        const existingUser = await getUser(email);
-        console.log(existingUser, "hi", email)
+        const existingUser = await getUser(email1);
+        const { id } = existingUser;
         // Check if the user with the given email already exists
         if (!existingUser) {
             return {
@@ -78,14 +75,58 @@ export const login = async (email, password) => {
             }
         }
 
+        const token = jwt.sign({ id }, process.env.SECRET_KEY);
+        console.log(token, "shdi");
+
         return {
             success: true,
-            ...existingUser
+            token
         };
 
 
     } catch (error) {
         throw new Error(error);
+    }
+
+}
+
+
+export const getUserData = (token) => {
+
+    return new Promise((resolve, reject) => {
+        console.log(token, "Asd")
+        const claims = jwt.verify(token, process.env.SECRET_KEY);
+        console.log(claims)
+        if (!claims) {
+            return reject({ success: false, message: "Unauthorized" });
+        }
+
+
+        db.get("SELECT id, name, email FROM user WHERE id = ?", [claims.id], (err, result) => {
+
+            if (err) {
+                return reject({ success: false, message: "Unauthorized" });
+            }
+
+            resolve(result);
+        })
+
+
+    })
+}
+
+export const authonticatedUser = (req, res, next) => {
+    const token = req.cookies["user"];
+    if (token) {
+        const claims = jwt.verify(token, process.env.SECRET_KEY);
+        // console.log(claims)
+        if (!claims) {
+            res.status(400).send({ success: false, message: "Unauthorized" });
+        } else {
+            next()
+        }
+    } else {
+        res.status(401).send({ success: false, message: "Unauthorized" });
     }
 
 }

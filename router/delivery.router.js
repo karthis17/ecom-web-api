@@ -1,9 +1,9 @@
 import { Router } from "express";
 import { addDtl, getDeliverDtl } from "../controller/delivery.controller.js";
-
+import { authonticatedUser } from "../controller/user.controller.js"
 const router = new Router();
 
-router.get('/get-dtl/:user_id', (req, res) => {
+router.get('/get-dtl/:user_id', authonticatedUser, (req, res) => {
     getDeliverDtl(req.params.user_id).then((result) => {
         res.send(result);
     }).catch((err) => {
@@ -12,7 +12,7 @@ router.get('/get-dtl/:user_id', (req, res) => {
 });
 
 
-router.post('/add-dtl', (req, res) => {
+router.post('/add-dtl', authonticatedUser, (req, res) => {
     addDtl(req.body.user_id, req.body.address, req.body.phone, req.body.email).then((response) => {
         res.status(200).send(response);
     }).catch((err) => {
