@@ -17,7 +17,6 @@ router.get('/products', (req, res) => {
 
 router.get('/products-cate/:category', (req, res) => {
     getProductsCate(req.params.category).then((products) => {
-        console.log(products)
         res.send(products)
     }).catch((err) => {
         res.status(404).send(err)
