@@ -204,7 +204,7 @@ export const getAmounts = (category) => {
                 resolve(products.map(product => product.amount));
             })
         } else {
-            db.all(sql.SELECT_PRODUCT + " WHERE category LIKE ? ORDER BY amount", [`%${category}%`], (err, products) => {
+            db.all(sql.SELECT_PRODUCT + " WHERE category LIKE ? ORDER BY amount", [`%${category}`], (err, products) => {
                 if (err) return reject(err);
                 resolve(products.map(product => product.amount));
             })
@@ -212,25 +212,29 @@ export const getAmounts = (category) => {
     })
 }
 
-export const getBrandName = (category) => {
-    const spec = new Set();
-
+export const fetchProductsSpec = (filter, category) => {
     return new Promise((resolve, reject) => {
-        getProductsCate(category).then((products) => {
-            products.forEach(product => {
-                spec.add(JSON.parse(product.specifiction).Brand);
-            });
-            resolve(Array.from(spec));
-        }).catch((err) => reject(err));
-    })
-}
+        if (filter.includes(" - ")) {
+            const filterValues = filter.split(' - ');
+            db.all(
+                "SELECT * FROM products WHERE LOWER(specifiction) LIKE ? AND LOWER(specifiction) LIKE ?",
+                [`%${filterValues[0].toLowerCase()}%`, `%${filterValues[1].toLowerCase()}%`],
+                (err, results) => {
+                    if (err) return reject(err);
+                    resolve(results);
+                }
+            );
+        } else if (category === 'All') {
 
-export const fetchProductsByBrand = (brandName, category) => {
-    return new Promise((resolve, reject) => {
-        db.all("SELECT * FROM products WHERE LOWER(specifiction) LIKE ? AND category=?", [`%${brandName.toLowerCase()}%`, category], (err, results) => {
-            if (err) return reject(err);
-            resolve(results);
-        })
+            db.all("SELECT * FROM products WHERE LOWER(specifiction) LIKE ?", [`%${filter.toLowerCase()}%`], (err, results) => {
+                if (err) return reject(err);
+                resolve(results);
+            })
+        } else
+            db.all("SELECT * FROM products WHERE LOWER(specifiction) LIKE ? AND category=?", [`%${filter.toLowerCase()}%`, category], (err, results) => {
+                if (err) return reject(err);
+                resolve(results);
+            })
     })
 }
 

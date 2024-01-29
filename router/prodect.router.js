@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getProducts, getProductByID, addProduct, reduceQuantity, filter, update, deleteProduct, updateRating, getProductsCate, getAmounts, getBrandName, fetchProductsByBrand } from "../controller/product.controller.js";
+import { getProducts, getProductByID, addProduct, reduceQuantity, filter, update, deleteProduct, updateRating, getProductsCate, getAmounts, fetchProductsSpec } from "../controller/product.controller.js";
 import { authonticatedUser } from "../controller/user.controller.js";
 import { authonticatedAdmin } from "../controller/admin.controller.js";
 
@@ -17,6 +17,7 @@ router.get('/products', (req, res) => {
 
 router.get('/products-cate/:category', (req, res) => {
     getProductsCate(req.params.category).then((products) => {
+        console.log(products)
         res.send(products)
     }).catch((err) => {
         res.status(404).send(err)
@@ -97,16 +98,9 @@ router.get('/amountList/:category', (req, res) => {
     });
 });
 
-router.get('/getBrandList/:category', (req, res) => {
-    getBrandName(req.params.category).then((brands) => {
-        res.send(brands);
-    }).catch((err) => {
-        res.status(400).send(err);
-    });
-});
 
 router.post('/get-brand-products', (req, res) => {
-    fetchProductsByBrand(req.body.brand, req.body.category).then((products) => {
+    fetchProductsSpec(req.body.brand, req.body.category).then((products) => {
         res.send(products);
     }).catch((err) => {
         res.status(400).send(err);
