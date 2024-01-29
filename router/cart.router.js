@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { getCartItems, addItemToCart, deleteItemFromCart, updateItemQuantityCart, updateToOrdered, getOrderedItems } from "../controller/cart.controller.js";
 import { authonticatedUser } from "../controller/user.controller.js";
+import { adminAccess } from "../controller/admin.controller.js";
 
 const router = new Router();
 
@@ -50,7 +51,7 @@ router.get('/ordered/:user_id', authonticatedUser, (req, res) => {
     });
 });
 
-router.post('/get-ordered-items', authonticatedUser, (req, res) => {
+router.post('/get-ordered-items', adminAccess, (req, res) => {
     getOrderedItems(req.body.order_id).then((result) => {
         res.status(200).send(result);
     }).catch((err) => {

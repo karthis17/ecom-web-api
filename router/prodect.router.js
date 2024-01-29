@@ -1,5 +1,7 @@
 import { Router } from "express";
-import { getProducts, getProductByID, addProduct, reduceQuantity, filter, update, deleteProduct, updateRating, getProductsCate, getAmounts } from "../controller/product.controller.js";
+import { getProducts, getProductByID, addProduct, reduceQuantity, filter, update, deleteProduct, updateRating, getProductsCate, getAmounts, getBrandName, fetchProductsByBrand } from "../controller/product.controller.js";
+import { authonticatedUser } from "../controller/user.controller.js";
+import { authonticatedAdmin } from "../controller/admin.controller.js";
 
 const router = new Router();
 
@@ -14,7 +16,6 @@ router.get('/products', (req, res) => {
 });
 
 router.get('/products-cate/:category', (req, res) => {
-    console.log(req.params)
     getProductsCate(req.params.category).then((products) => {
         res.send(products)
     }).catch((err) => {
@@ -33,9 +34,8 @@ router.get('/id/:id', (req, res) => {
 });
 
 
-router.post('/qty-red', (req, res) => {
+router.post('/qty-red', authonticatedUser, (req, res) => {
     reduceQuantity(req.body.name, req.body.quantity).then((ress) => {
-        console.log(req.body)
         res.send(ress);
     }).catch((err) => {
         res.status(404).send(err);
@@ -52,7 +52,7 @@ router.post('/like', (req, res) => {
 });
 
 
-router.put('/update', (req, res) => {
+router.put('/update', authonticatedAdmin, (req, res) => {
     update(req.body.id, req.body.productName, req.body.price, req.body.images, req.body.thumbnail, req.body.description, req.body.quantity, req.body.discount, req.body.about, req.body.category, req.body.spec).then((ress) => {
         res.send(ress);
     }).catch((err) => {
@@ -61,7 +61,7 @@ router.put('/update', (req, res) => {
 })
 
 
-router.delete('/delete/:id', (req, res) => {
+router.delete('/delete/:id', authonticatedAdmin, (req, res) => {
     deleteProduct(req.params.id).then((ress) => {
         res.send(ress)
     }).catch((err) => {
@@ -69,8 +69,8 @@ router.delete('/delete/:id', (req, res) => {
     });
 });
 
-router.post('/add', (req, res) => {
-    console.log(req.body);
+router.post('/add', authonticatedAdmin, (req, res) => {
+
     addProduct(req.body.productName, req.body.price, req.body.images, req.body.thumbnail, req.body.description, req.body.quantity, req.body.discount, req.body.about, req.body.category, req.body.spec).then((ress) => {
         res.status(200).send(ress);
     }).catch((err) => {
@@ -90,13 +90,27 @@ router.post('/update-rating', (req, res) => {
 
 
 router.get('/amountList/:category', (req, res) => {
-    console.log(req.params)
     getAmounts(req.params.category).then((amounts) => {
-        console.log(amounts);
         res.send(amounts);
     }).catch((err) => {
         res.status(500).send(err);
     });
+});
+
+router.get('/getBrandList/:category', (req, res) => {
+    getBrandName(req.params.category).then((brands) => {
+        res.send(brands);
+    }).catch((err) => {
+        res.status(400).send(err);
+    });
+});
+
+router.post('/get-brand-products', (req, res) => {
+    fetchProductsByBrand(req.body.brand, req.body.category).then((products) => {
+        res.send(products);
+    }).catch((err) => {
+        res.status(400).send(err);
+    })
 })
 
 export default router;

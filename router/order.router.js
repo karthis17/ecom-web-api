@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { addItemToOrder, getAll, getOrderHistory } from "../controller/order.controller.js";
 import { authonticatedUser } from "../controller/user.controller.js";
+import { authonticatedAdmin } from "../controller/admin.controller.js";
 
 const router = new Router();
 
@@ -21,7 +22,7 @@ router.post('/addOrder', authonticatedUser, (req, res) => {
     });
 });
 
-router.get('/get-all-orders', (req, res) => {
+router.get('/get-all-orders', authonticatedAdmin, (req, res) => {
     getAll().then((orders) => {
         res.send(orders);
     }).catch((err) => {

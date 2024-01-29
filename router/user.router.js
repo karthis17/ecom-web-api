@@ -47,7 +47,14 @@ router.get('/get-user', (req, res) => {
     } else {
         res.status(404).send({ success: false, message: "Unauthorized" });
     }
-})
+});
+
+router.get('/logout', (req, res) => {
+    res.cookie("user", " ", { expires: new Date(0) });
+
+    res.send({ success: true, message: "User logged out" });
+
+});
 
 
 export default router;

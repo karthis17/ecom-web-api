@@ -211,3 +211,26 @@ export const getAmounts = (category) => {
         }
     })
 }
+
+export const getBrandName = (category) => {
+    const spec = new Set();
+
+    return new Promise((resolve, reject) => {
+        getProductsCate(category).then((products) => {
+            products.forEach(product => {
+                spec.add(JSON.parse(product.specifiction).Brand);
+            });
+            resolve(Array.from(spec));
+        }).catch((err) => reject(err));
+    })
+}
+
+export const fetchProductsByBrand = (brandName, category) => {
+    return new Promise((resolve, reject) => {
+        db.all("SELECT * FROM products WHERE LOWER(specifiction) LIKE ? AND category=?", [`%${brandName.toLowerCase()}%`, category], (err, results) => {
+            if (err) return reject(err);
+            resolve(results);
+        })
+    })
+}
+
