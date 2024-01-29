@@ -224,7 +224,7 @@ export const fetchProductsSpec = (filter, category) => {
                     resolve(results);
                 }
             );
-        } else if (category === 'All') {
+        } else if (category === 'all') {
 
             db.all("SELECT * FROM products WHERE LOWER(specifiction) LIKE ?", [`%${filter.toLowerCase()}%`], (err, results) => {
                 if (err) return reject(err);
@@ -238,3 +238,20 @@ export const fetchProductsSpec = (filter, category) => {
     })
 }
 
+export const filter_rating = (rating, category) => {
+
+    return new Promise((resolve, reject) => {
+        if (category !== "all") {
+            db.all("SELECT * FROM products WHERE rating = ? AND category = ?", [rating, category], (err, results) => {
+                if (err) return reject(err);
+                resolve(results);
+            })
+        } else {
+            db.all("SELECT * FROM products WHERE rating = ?", [rating], (err, results) => {
+                if (err) return reject(err);
+                resolve(results);
+            })
+        }
+    })
+
+}
