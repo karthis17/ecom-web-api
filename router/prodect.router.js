@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getProducts, getProductByID, addProduct, reduceQuantity, filter, update, deleteProduct, updateRating, getProductsCate, getAmounts, fetchProductsSpec, filter_rating } from "../controller/product.controller.js";
+import { getProducts, getProductByID, addProduct, reduceQuantity, filter, update, deleteProduct, updateRating, getProductsCate, getAmounts, fetchProductsSpec, filter_rating, getOutOfStackProducts } from "../controller/product.controller.js";
 import { authonticatedUser } from "../controller/user.controller.js";
 import { authonticatedAdmin } from "../controller/admin.controller.js";
 
@@ -109,6 +109,15 @@ router.post('/get-brand-products', (req, res) => {
 router.post('/get-products-by-rating', (req, res) => {
     filter_rating(req.body.rating, req.body.category).then((response) => {
         res.send(response);
+    }).catch((err) => {
+        res.status(400).send(err);
+    });
+});
+
+
+router.get('/outofstock-products', authonticatedAdmin, (req, res) => {
+    getOutOfStackProducts().then((products) => {
+        res.status(200).send(products);
     }).catch((err) => {
         res.status(400).send(err);
     });

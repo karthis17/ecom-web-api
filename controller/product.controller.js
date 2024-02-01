@@ -51,6 +51,7 @@ export const addProduct = (productName, price, images, thumbnail, description, q
         if (discount) {
             amount = price - (price * (discount / 100));
         }
+        // db.get("SELECT * FROM products WHERE LOWER(productName) = ? OR thumbnail = ?", [productName, thumbnail], )
         db.run(sql.INSERT_PRODUCT, [productName, price, images, thumbnail, description, quantity, discount, about, category, amount, JSON.stringify(spec)], function (err, result) {
             if (err) {
                 console.error(err);
@@ -254,4 +255,15 @@ export const filter_rating = (rating, category) => {
         }
     })
 
+}
+
+export const getOutOfStackProducts = () => {
+    return new Promise((resolve, reject) => {
+        db.all("SELECT * FROM products WHERE quantity < 1", (err, results) => {
+            if (err) {
+                return reject(err);
+            }
+            resolve(results);
+        })
+    })
 }

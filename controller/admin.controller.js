@@ -13,9 +13,13 @@ export const adminLogin = (username, password) => {
                 return reject(err);
             }
 
-            const token = jwt.sign({ id: result.id }, process.env.ADMIN_SECRET_KEY);
+            if (result) {
+                const token = jwt.sign({ id: result.id }, process.env.ADMIN_SECRET_KEY);
 
-            resolve(token);
+                resolve(token);
+            } else {
+                resolve({ success: false, message: "Invalid credentials." })
+            }
         })
     });
 };
