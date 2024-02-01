@@ -1,5 +1,19 @@
 import { Router } from "express";
-import { getProducts, getProductByID, addProduct, reduceQuantity, filter, update, deleteProduct, updateRating, getProductsCate, getAmounts, fetchProductsSpec, filter_rating, getOutOfStackProducts } from "../controller/product.controller.js";
+import {
+    getProducts,
+    getProductByID,
+    addProduct,
+    reduceQuantity,
+    filter,
+    update,
+    deleteProduct,
+    updateRating,
+    getProductsCate,
+    getAmounts,
+    fetchProductsSpec,
+    filter_rating,
+    getOutOfStackProducts
+} from "../controller/product.controller.js";
 import { authonticatedUser } from "../controller/user.controller.js";
 import { authonticatedAdmin } from "../controller/admin.controller.js";
 
@@ -80,8 +94,9 @@ router.post('/add', authonticatedAdmin, (req, res) => {
 });
 
 router.post('/update-rating', (req, res) => {
+    console.log(req.body);
 
-    updateRating(req.body.id, req.body.rating).then((ress) => {
+    updateRating(req.body.id, req.body.nofrating, req.body.rating).then((ress) => {
         res.status(200).send(ress);
     }).catch((err) => {
         res.status(500).send(err);

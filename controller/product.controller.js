@@ -8,7 +8,7 @@ let sql = {
     INSERT_PRODUCT: "INSERT INTO products (productName, price, images, thumbnail, description, quantity, discount, about, category, amount,specifiction ) VALUES (?,?,?,?,?,?, ?, ?, ?,?,?)",
     UPDATE_PRODUCT: "UPDATE products SET productName=?, price=?, images=?, thumbnail=?, description=?, quantity=?, discount=?, about=?, amount=?, category=?, specifiction=?  WHERE id = ?",
     DELETE_PRODUCT: "DELETE FROM products WHERE id = ? OR productName=?",
-    UPDATE_RATING: "UPDATE products SET rating = ? WHERE id = ?"
+    UPDATE_RATING: "UPDATE products SET rating = ?, noOfRatings=? WHERE id = ?"
 };
 
 export const getProducts = () => {
@@ -172,12 +172,14 @@ export const deleteProduct = (id) => {
 };
 
 
-export const updateRating = (id, rating) => {
+export const updateRating = (id, nofrating, rating) => {
 
     return new Promise((resolve, reject) => {
-        db.run(sql.UPDATE_RATING, [rating, id], (err, res) => {
-            if (err) return reject(err);
+        db.run(sql.UPDATE_RATING, [rating, nofrating, id], (err, res) => {
+            if (err) {
+                return reject(err);
 
+            }
             resolve({ success: true, message: 'Updated rating successfully' });
         });
     });
