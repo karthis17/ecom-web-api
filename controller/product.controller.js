@@ -242,12 +242,12 @@ export const filter_rating = (rating, category) => {
 
     return new Promise((resolve, reject) => {
         if (category !== "all") {
-            db.all("SELECT * FROM products WHERE rating = ? AND category = ?", [rating, category], (err, results) => {
+            db.all("SELECT * FROM products WHERE rating >= ? AND rating <= ? AND category = ?", [rating, rating + 1, category], (err, results) => {
                 if (err) return reject(err);
                 resolve(results);
             })
         } else {
-            db.all("SELECT * FROM products WHERE rating = ?", [rating], (err, results) => {
+            db.all("SELECT * FROM products WHERE rating >= ? AND rating <= ?", [rating, rating + 1], (err, results) => {
                 if (err) return reject(err);
                 resolve(results);
             })
