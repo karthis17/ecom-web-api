@@ -2,12 +2,12 @@ import { db } from "../model/product.model.js";
 
 
 let sql = {
-    SELECT_CART: "SELECT * FROM cart_list WHERE user_id = ? AND ordered = ?",
-    INSERT_CART: "INSERT INTO cart_list (product_id, productName, price, quantity, user_id, total, ordered, product_qty) VALUES (?,?, ?,?, ?,?, ?, ?)",
+    SELECT_CART: "SELECT * FROM cart_list WHERE user_id = ? AND ordered = ? AND returned = 0",
+    INSERT_CART: "INSERT INTO cart_list (product_id, productName, price, quantity, user_id, total, ordered, product_qty, returned) VALUES (?,?, ?,?, ?,?, ?, ?, 0)",
     DELETE_CART_ITEM: "DELETE FROM cart_list WHERE id = ?",
     UPDATE_QTY: "UPDATE cart_list SET quantity = ?, total=? WHERE id = ?",
     UPDATE_TO_ORDER: "UPDATE cart_list SET ordered = 1 where user_id = ?",
-    SELECT_ORDERED: "SELECT * FROM cart_list WHERE order_id = ?",
+    SELECT_ORDERED: "SELECT * FROM cart_list WHERE order_id = ? AND returned = 0",
     UPDATE_ORDER_ID: `UPDATE cart_list SET order_id = ? WHERE user_id = ? AND ordered = 1 AND order_id IS NULL`,
 }
 
@@ -110,4 +110,15 @@ export const getOrderedItems = (order_id) => {
         });
     });
 
+}
+
+export const getReturnedProducts = (order_id) => {
+    return new Promise((resolve, reject) => {
+        db.all("SELECT * FROM cart_list WHERE order_id = ? AND returned = 1", [order_id], (err, res) => {
+            console.log(res)
+            if (err) { return reject(err); }
+
+            resolve(res);
+        })
+    })
 }

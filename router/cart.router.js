@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { getCartItems, addItemToCart, deleteItemFromCart, updateItemQuantityCart, updateToOrdered, getOrderedItems } from "../controller/cart.controller.js";
+import { getCartItems, addItemToCart, deleteItemFromCart, updateItemQuantityCart, updateToOrdered, getOrderedItems, getReturnedProducts } from "../controller/cart.controller.js";
 import { authonticatedUser } from "../controller/user.controller.js";
-import { adminAccess } from "../controller/admin.controller.js";
+import { adminAccess, authonticatedAdmin } from "../controller/admin.controller.js";
 
 const router = new Router();
 
@@ -58,5 +58,13 @@ router.post('/get-ordered-items', adminAccess, (req, res) => {
         res.status(404).send(err);
     });
 });
+
+router.get('/get-returned-products/:returned', authonticatedAdmin, (req, res) => {
+    getReturnedProducts(req.params.returned).then((cart) => {
+        res.send(cart);
+    }).catch((err) => {
+        res.status(400).send(err);
+    });
+})
 
 export default router;
