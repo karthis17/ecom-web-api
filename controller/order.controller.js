@@ -5,7 +5,7 @@ let sql = {
     SELECT_ORDERS: 'SELECT * FROM order_history WHERE user_id = ? AND has_products = 1 ORDER BY id DESC',
     SELECT_ORDERS_RETURNED: 'SELECT * FROM order_history WHERE has_returned = 1 ORDER BY id DESC',
     SELECT_ALL: 'SELECT * FROM order_history WHERE has_products= 1 ORDER BY id DESC',
-    INSERT_ORDERS: 'INSERT INTO order_history (user_id, phone, address, payment_method, date, name, email) VALUES (?,?,?,?,?,?,?)',
+    INSERT_ORDERS: 'INSERT INTO order_history (user_id, phone, address, payment_method, date, name, email, has_products) VALUES (?,?,?,?,?,?,?,1)',
 }
 
 
@@ -28,9 +28,6 @@ export const addItemToOrder = (user_id, phone, payment, address, name, email) =>
     return new Promise((resolve, reject) => {
 
         let date = new Date();
-
-        date = `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
-
         db.run(sql.INSERT_ORDERS, [user_id, phone, address, payment, date, name, email], async function (err, result) {
             if (err) {
                 return reject(err);
@@ -62,7 +59,7 @@ export const getAllReturned = () => {
 
 export const returnProduct = (product_id, order_id, quantity, cart_id, resone) => {
     return new Promise((resolve, reject) => {
-        db.run("UPDATE cart_list SET returned = 1, resone_for_return=? WHERE id = ?", [resone, cart_id], (err) => {
+        db.run("UPDATE cart_list SET returned = 1, resone_for_return=?, return_date=? WHERE id = ?", [resone, new Date(), cart_id], (err) => {
             if (err) { return reject(err); }
             db.all("SELECT * FROM cart_list WHERE order_id = ? AND returned = 0", [order_id], (err, res) => {
                 if (err) { return reject(err); }
