@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { register, login, getUserData } from "../controller/user.controller.js";
+import { register, login, getUserData, forgotPassword, resetPassword } from "../controller/user.controller.js";
 
 
 const router = new Router();
@@ -56,5 +56,14 @@ router.get('/logout', (req, res) => {
 
 });
 
+router.post('/forgot-password', (req, res) => {
+    forgotPassword(req.body.email).then((ress) => { res.send(ress) }).catch((err) => { res.status(500).send(err) });
+});
+
+
+router.post('/reset-password', (req, res) => {
+    console.log(req.body)
+    resetPassword(req.body.email, req.body.password).then((ress) => { res.send(ress) }).catch((err) => { res.status(500).send(err) });
+})
 
 export default router;

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { addItemToOrder, getAll, getAllReturned, getOrderHistory, returnProduct } from "../controller/order.controller.js";
+import { addItemToOrder, getAll, getAllReturned, getOrderHistory, returnProduct, setDeliveryStatus, setTrackId } from "../controller/order.controller.js";
 import { authonticatedUser } from "../controller/user.controller.js";
 import { authonticatedAdmin } from "../controller/admin.controller.js";
 
@@ -45,6 +45,17 @@ router.post('/return-product', authonticatedUser, (req, res) => {
     });
 });
 
+router.post('/delivery-status', (req, res) => {
+
+    console.log(req.body)
+    setDeliveryStatus(req.body.status, req.body.id).then((ress) => { res.send(ress); }).catch((err) => { res.status(500).send(err) });
+})
+
+router.post('/tracking-id', (req, res) => {
+
+    console.log(req.body)
+    setTrackId(req.body.trackId, req.body.id, req.body.user).then((ress) => { res.send(ress); }).catch((err) => { res.status(500).send(err) });
+})
 
 
 export default router;
