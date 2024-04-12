@@ -1,8 +1,9 @@
-import { db } from "../model/product.model.js";
+// import { db } from "../model/product.model.js";
 import bcrypt from "bcrypt";
 import jwt from 'jsonwebtoken'
 import { config } from 'dotenv';
 import nodemailer from 'nodemailer'
+import { User } from "../model/user.model.js";
 
 config();
 
@@ -12,17 +13,6 @@ let sql = {
     UPDATE: 'UPDATE user SET password = ? WHERE email = ?'
 }
 
-export const getUser = (email) => {
-    return new Promise((resolve, reject) => {
-        db.get(sql.SELECT_USER, [email, email], (err, result) => {
-            if (err) {
-                return reject(err);
-            } else {
-                resolve(result);
-            }
-        });
-    });
-}
 
 export const register = async (name, email, password) => {
     try {
@@ -30,35 +20,33 @@ export const register = async (name, email, password) => {
         const hashPassword = await bcrypt.hash(password, salt);
 
         // Check if the user with the given email already exists
-        if (await getUser(email)) {
+        if (await User.findOne({ email })) {
             return {
                 success: false,
                 message: 'User already exists.',
                 err: 'email'
             };
         }
-        return new Promise((resolve, reject) => {
-            db.run(sql.INSERT_USER, [name, email, hashPassword], function (err) {
-                if (err) {
-                    return reject(err);
-                } else {
 
-                    const token = jwt.sign({ id: this.lastID, exp: Math.floor(Date.now() / 1000) + 7 * (24 * 60 * 60) }, process.env.SECRET_KEY);
-                    console.log(token);
-                    resolve({ success: true, token });
-                }
-            });
-        });
+        const user = new User({
+            name, email, password: hashPassword
+        })
+
+        await user.save();
+
+        const token = jwt.sign({ id: user._id, exp: Math.floor(Date.now() / 1000) + 7 * (24 * 60 * 60) }, process.env.SECRET_KEY);
+        console.log(token);
+        return { success: true, token };
+
     } catch (error) {
         console.error('Error in registration:', error);
         throw error;
     }
 }
 
-export const login = async (email1, password) => {
+export const login = async (email, password) => {
     try {
-        const existingUser = await getUser(email1);
-        const { id } = existingUser;
+        const existingUser = await User.findOne({ email });
         // Check if the user with the given email already exists
         if (!existingUser) {
             return {
@@ -67,6 +55,7 @@ export const login = async (email1, password) => {
                 err: 'email'
             }
         }
+        const { _id } = existingUser;
         const isValid = await bcrypt.compare(password, existingUser.password);
 
         if (!isValid) {
@@ -77,7 +66,7 @@ export const login = async (email1, password) => {
             }
         }
 
-        const token = jwt.sign({ id }, process.env.SECRET_KEY);
+        const token = jwt.sign({ id: _id }, process.env.SECRET_KEY);
         console.log(token, "shdi");
 
         return {
@@ -87,39 +76,35 @@ export const login = async (email1, password) => {
 
 
     } catch (error) {
-        throw new Error(error);
+        throw error;
     }
 
 }
 
 
-export const getUserData = (token) => {
+export const getUserData = async (token) => {
 
-    return new Promise((resolve, reject) => {
-        console.log(token, "Asd")
+
+    try {
         const claims = jwt.verify(token, process.env.SECRET_KEY);
-        console.log(claims)
         if (!claims) {
             return reject({ success: false, message: "Unauthorized" });
         }
+        const user = await User.findById(claims.id);
+
+        return user;
+
+    } catch (error) {
+        throw error;
+    }
 
 
-        db.get("SELECT id, name, email FROM user WHERE id = ?", [claims.id], (err, result) => {
 
-            if (err) {
-                return reject({ success: false, message: "Unauthorized" });
-            }
-
-            resolve(result);
-        })
-
-
-    })
 }
 
 export const forgotPassword = (email) => {
     return new Promise(async (resolve, reject) => {
-        const existingUser = await getUser(email);
+        const existingUser = await User.findOne({ email });
 
         if (!existingUser) {
             return resolve({
@@ -139,6 +124,11 @@ export const forgotPassword = (email) => {
 
         const OTP = Math.floor(1000 + Math.random() * 9000); // Generate OTP
 
+        existingUser.otp = OTP;
+
+        existingUser.otp_epr = Date.now();
+
+        await existingUser.save();
 
         const mailOptions = {
             from: 'recoverid166@gmail.com',
@@ -207,21 +197,34 @@ export const forgotPassword = (email) => {
 export const resetPassword = async (email, newPassword) => {
 
 
-    const salt = await bcrypt.genSalt(5);
-    const hashPassword = await bcrypt.hash(newPassword, salt);
+    try {
 
-    console.log(hashPassword);
+        const salt = await bcrypt.genSalt(5);
+        const hashPassword = await bcrypt.hash(newPassword, salt);
 
-    return new Promise((resolve, reject) => {
-        db.run(sql.UPDATE, [hashPassword, email], (err) => {
-            console.log(hashPassword, email);
-            if (err) {
-                console.error(err);
-                return reject(err);
-            }
-            resolve({ success: true, message: 'password updated successfully' });
-        });
-    })
+        console.log(hashPassword);
+
+        const user = await User.findOne({ email });
+        user.password = hashPassword;
+
+        await user.save();
+
+        return { success: true, message: "User saved successfully" };
+
+    } catch (error) {
+        throw error.message;
+    }
+
+    // return new Promise((resolve, reject) => {
+    //     db.run(sql.UPDATE, [hashPassword, email], (err) => {
+    //         console.log(hashPassword, email);
+    //         if (err) {
+    //             console.error(err);
+    //             return reject(err);
+    //         }
+    //         resolve({ success: true, message: 'password updated successfully' });
+    //     });
+    // })
 
 }
 

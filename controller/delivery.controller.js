@@ -1,34 +1,40 @@
-import { db } from "../model/product.model.js";
+import { Address } from "../model/deliver.model.js";
+// import { db } from "../model/product.model.js";
 
 const sql = {
     INSERT_DTL: "INSERT INTO  delivery_deatails(address, phone, email, user_id) VALUES(?,?,?,?)",
     SELECT_DTL: "SELECT * FROM  delivery_deatails WHERE user_id = ?"
 }
 
-export const getDeliverDtl = (user_id) => {
+export const getDeliverDtl = (user) => {
 
-    return new Promise((resolve, reject) => {
-        db.all(sql.SELECT_DTL, [user_id], function (err, result) {
-            if (err) {
-                return reject(err);
-            }
-            resolve(result);
-        })
-    })
+    try {
+        const address = Address.find({ user });
+
+        return address;
+
+    } catch (error) {
+        throw error;
+    }
+
 
 }
 
 
-export const addDtl = (user_id, address, phone, email) => {
-    console.log(user_id, address, phone, email)
+export const addDtl = async (address1) => {
 
-    return new Promise((resolve, reject) => {
-        db.run(sql.INSERT_DTL, [address, phone, email, user_id], function (err) {
-            if (err) {
-                return reject(err);
-            }
-            resolve({ success: true, message: "dtl updated successfully", id: this.lastID });
-        })
-    })
+    try {
+        const address = new Address(address1);
+        console.log(address);
+
+        await address.save();
+
+        return address;
+
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+
 
 }

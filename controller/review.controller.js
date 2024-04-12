@@ -1,37 +1,54 @@
-import { db } from "../model/product.model.js";
+// import { db } from "../model/product.model.js";
+import { Product } from "../model/product.model.js";
+import { Review } from "../model/review.model.js";
 
 const sql = {
     INSERT_REVIEW: "INSERT INTO product_reviews(product_id, comment, rating, name) VALUES(?,?,?,?)",
     SELECT_REVIEW: "SELECT * FROM product_reviews WHERE product_id = ?"
 }
 
-export const addReivew = (product_id, comment, rating, user_name) => {
+export const addReivew = async (product, comment, rating, user) => {
 
-    return new Promise((resolve, reject) => {
-
-        db.run(sql.INSERT_REVIEW, [product_id, comment, rating, user_name], function (err) {
-            if (err) {
-                return reject(err);
-            }
-            resolve({
-                success: true,
-                message: "review successfully added",
-                id: this.lastID
-            });
+    try {
+        const review = new Review({
+            product, comment, rating, user
         });
-    });
+
+        await review.save();
+
+        const review_all = await Review.find({ product });
+
+        await Product.updateOne({ _id: product }, { rating: calculateAverageRating(review_all), noOfRatings: review_all.length }).exec();
+
+        return { success: true, message: "success added", review };
+    } catch (error) {
+        console.log(error);
+        throw error.message;
+    }
 
 };
 
-export const getReviews = (product_id) => {
 
-    return new Promise((resolve, reject) => {
-        db.all(sql.SELECT_REVIEW, [product_id], (err, results) => {
-            if (err) {
-                return reject(err);
-            }
-            resolve(results);
-        });
-    });
+function calculateAverageRating(reviews) {
+    if (reviews.length === 0) {
+        return 0;
+    }
+
+    const totalRating = reviews.reduce((acc, review) => acc + review.rating, 0);
+    const averageRating = totalRating / reviews.length;
+
+    return averageRating;
+}
+
+export const getReviews = async (product) => {
+
+    try {
+        const review = await Review.find({ product }).populate({ path: 'user', select: '-password' });
+        console.log(review)
+        return review;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
 
 };

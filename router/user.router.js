@@ -13,6 +13,7 @@ const createCookie = (response, data) => {
 
 
 router.post('/register', (req, res) => {
+    console.log(req.body)
     register(req.body.name, req.body.email, req.body.password).then((result) => {
 
         createCookie(res, result.token);

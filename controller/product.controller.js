@@ -1,4 +1,5 @@
-import { db } from "../model/product.model.js";
+// import { db } from "../model/product.model.js";
+import { Product } from "../model/product.model.js";
 
 
 let sql = {
@@ -14,13 +15,18 @@ let sql = {
 export const getProducts = () => {
 
     return new Promise((resolve, reject) => {
-        db.all(sql.SELECT_PRODUCT + ' ORDER BY id DESC', (err, products) => {
-            if (err) {
-                return reject(err);
-            }
+        // db.all(sql.SELECT_PRODUCT + ' ORDER BY id DESC', (err, products) => {
+        //     if (err) {
+        //         return reject(err);
+        //     }
 
-            // fs.writeFile('./data.json', JSON.stringify(products), (err) => { console.log(err); })
+        //     // fs.writeFile('./data.json', JSON.stringify(products), (err) => { console.log(err); })
+        //     resolve(products);
+        // });
+        Product.find().then((products) => {
             resolve(products);
+        }).catch((err) => {
+            reject(err);
         });
     });
 
@@ -30,13 +36,16 @@ export const getProducts = () => {
 export const getProductByID = (id_or_name) => {
 
     return new Promise((resolve, reject) => {
-        db.get(sql.SELECT_PRODUCT_BY_ID, [id_or_name, id_or_name], (err, products) => {
-            if (err) {
-                return reject(err);
-            }
+        // db.get(sql.SELECT_PRODUCT_BY_ID, [id_or_name, id_or_name], (err, products) => {
+        //     if (err) {
+        //         return reject(err);
+        //     }
 
+        //     resolve(products);
+        // });
+        Product.findOne({ $or: [{ _id: id_or_name }, { productName: id_or_name }] }).then((products) => {
             resolve(products);
-        });
+        }).catch((err) => reject(err));
     });
 
 }
@@ -45,21 +54,32 @@ export const addProduct = (productName, price, images, thumbnail, description, q
 
 
 
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
         let amount = price;
         console.log(productName, price, images, thumbnail, description, quantity, discount, category)
         if (discount) {
             amount = price - (price * (discount / 100));
         }
+        try {
+            const product = new Product({
+                productName, price, amount, images, thumbnail, description, quantity, discount, category, about, specification: spec
+            })
+
+            await product.save();
+            resolve(product);
+        } catch (err) {
+            reject(err)
+        }
+
         // db.get("SELECT * FROM products WHERE LOWER(productName) = ? OR thumbnail = ?", [productName, thumbnail], )
-        db.run(sql.INSERT_PRODUCT, [productName, price, images, thumbnail, description, quantity, discount, about, category, amount, JSON.stringify(spec)], function (err, result) {
-            if (err) {
-                console.error(err);
-                return reject(err);
-            } else {
-                resolve({ success: true, message: "Product added successfully", id: this.lastID });
-            }
-        })
+        // db.run(sql.INSERT_PRODUCT, [productName, price, images, thumbnail, description, quantity, discount, about, category, amount, JSON.stringify(spec)], function (err, result) {
+        //     if (err) {
+        //         console.error(err);
+        //         return reject(err);
+        //     } else {
+        //         resolve({ success: true, message: "Product added successfully", id: this.lastID });
+        //     }
+        // })
     });
 
 }
@@ -68,204 +88,201 @@ export const addProduct = (productName, price, images, thumbnail, description, q
 
 export const reduceQuantity = (productName, quantity) => {
 
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
 
-        getProductByID(productName).then((row) => {
+        try {
+            const products = await Product.findOne({ productName });
 
-            const existingQuantity = row.quantity;
+            products.quantity -= quantity;
+
+            await products.save();
+            resolve(products);
+        } catch (err) {
+            reject(err);
+        }
+        // getProductByID(productName).then((row) => {
+
+        //     const existingQuantity = row.quantity;
 
 
-            const reducedQuantity = existingQuantity - quantity;
+        //     const reducedQuantity = existingQuantity - quantity;
 
-            if (reducedQuantity < 0) {
-                return reject(new Error("New quantity cannot be greater than existing quantity"));
-            }
+        //     if (reducedQuantity < 0) {
+        //         return reject(new Error("New quantity cannot be greater than existing quantity"));
+        //     }
 
-            db.run(sql.UPDATE_QTY, [reducedQuantity, row.id], (err, result) => {
-                if (err) {
-                    return reject(err);
-                }
-                resolve({
-                    success: true,
-                    message: "Product quantity updated successfully"
-                });
-            });
-        });
+        //     db.run(sql.UPDATE_QTY, [reducedQuantity, row.id], (err, result) => {
+        //         if (err) {
+        //             return reject(err);
+        //         }
+        //         resolve({
+        //             success: true,
+        //             message: "Product quantity updated successfully"
+        //         });
+        //     });
+        // });
     });
 }
 
 export const filter = (price, about, category) => {
 
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let query = {};
 
-        let query = sql.SELECT_PRODUCT;
-
-        let params = [];
-
-        if (price && about && category) {
-            query += ' WHERE amount > ? AND amount < ? AND LOWER(about) LIKE ? COLLATE NOCASE AND LOWER(category) LIKE ?';
-            params.push(price[0], price[1], `%${about}%`, `%${category}%`);
-        }
-        else if (price && about) {
-            query += ' WHERE amount >= ? AND amount <= ? AND LOWER(about) LIKE ? COLLATE NOCASE ORDER BY id DESC';
-            params.push(price[0], price[1], `%${about}%`);
-        } else if (price && category) {
-            query += ' WHERE amount >= ? AND amount <= ? AND LOWER(category) LIKE ? COLLATE NOCASE ORDER BY id DESC';
-            params.push(price[0], price[1], `%${category}%`);
-        } else if (category && about) {
-            query += ' WHERE LOWER(category) LIKE ? COLLATE NOCASE AND LOWER(about) LIKE ? COLLATE NOCASE';
-            params.push(`%${category}%`, `%${about}%`);
-        }
-        else if (price) {
-            query += ' WHERE amount >= ? AND amount <= ? ';
-            params.push(price[0], price[1]);
-        } else if (about) {
-            query += ' WHERE LOWER(about) LIKE ? COLLATE NOCASE';
-            params.push(`%${about}%`);
-        } else {
-            query += ' WHERE LOWER(category) LIKE ? COLLATE NOCASE';
-            params.push(`%${category}%`);
-        }
-
-        db.all(query, params, (err, result) => {
-            console.log('Generated Query:', query);
-            console.log('Parameters:', params);
-
-            if (err) {
-                return reject(err);
+            if (price && about && category) {
+                query = {
+                    amount: { $gt: price[0], $lt: price[1] },
+                    about: { $regex: about, $options: 'i' },
+                    category: { $regex: category, $options: 'i' }
+                };
+            } else if (price && about) {
+                query = {
+                    amount: { $gte: price[0], $lte: price[1] },
+                    about: { $regex: about, $options: 'i' }
+                };
+            } else if (price && category) {
+                query = {
+                    amount: { $gte: price[0], $lte: price[1] },
+                    category: { $regex: category, $options: 'i' }
+                };
+            } else if (category && about) {
+                query = {
+                    about: { $regex: about, $options: 'i' },
+                    category: { $regex: category, $options: 'i' }
+                };
+            } else if (price) {
+                query = { amount: { $gte: price[0], $lte: price[1] } };
+            } else if (about) {
+                query = { about: { $regex: about, $options: 'i' } };
+            } else {
+                query = { category: { $regex: category, $options: 'i' } };
             }
+
+            const result = await Product.find(query).exec();
+            console.log('Generated Query:', query);
+
             resolve(result);
-        });
+        } catch (err) {
+            reject(err);
+        }
     });
 
 }
 
 export const update = (id, productName, price, images, thumbnail, description, quantity, discount, about, category, spec) => {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
         let amount = price;
         if (discount) {
             amount = price - (price * (discount / 100));
         }
-        db.run(sql.UPDATE_PRODUCT, [productName, price, images, thumbnail, description, quantity, discount, about, amount, category, JSON.stringify(spec), id], (err, result) => {
-            if (err) {
-                return reject(err);
-            }
-            resolve({
-                success: true,
-                message: 'Updated Product'
-            });
-        });
+
+        const product = await Product.findByIdAndUpdate(id, { $set: { productName, price, images, thumbnail, description, quantity, discount, about, amount, category, specification: spec } })
+            .then(result => resolve.result)
+            .catch(err => reject(err));
+
+        // db.run(sql.UPDATE_PRODUCT, [productName, price, images, thumbnail, description, quantity, discount, about, amount, category, JSON.stringify(spec), id], (err, result) => {
+        //     if (err) {
+        //         return reject(err);
+        //     }
+        //     resolve({
+        //         success: true,
+        //         message: 'Updated Product'
+        //     });
+        // });
     })
 }
 
 export const deleteProduct = (id) => {
     return new Promise((resolve, reject) => {
-        console.log(id)
-        db.run(sql.DELETE_PRODUCT, [id, id], (err, result) => {
-            if (err) {
-                return reject(err);
-            }
-            resolve({ success: true, message: 'Deleted Product' });
-        });
+        // console.log(id)
+        // db.run(sql.DELETE_PRODUCT, [id, id], (err, result) => {
+        //     if (err) {
+        //         return reject(err);
+        //     }
+        //     resolve({ success: true, message: 'Deleted Product' });
+        // });
+
+        Product.deleteOne({ $or: [{ _id: id }, { productName: id }] }).then(result => resolve(result)).catch(err => reject(err));
 
     });
 };
 
 
-export const updateRating = (id, nofrating, rating) => {
-
-    return new Promise((resolve, reject) => {
-        db.run(sql.UPDATE_RATING, [rating, nofrating, id], (err, res) => {
-            if (err) {
-                return reject(err);
-
-            }
-            resolve({ success: true, message: 'Updated rating successfully' });
-        });
-    });
-
+export const updateRating = async (id, nofrating, rating) => {
+    try {
+        await Product.updateOne({ _id: id }, { rating: rating, numberOfRatings: nofrating }).exec();
+        return { success: true, message: 'Updated rating successfully' };
+    } catch (err) {
+        throw err;
+    }
 };
 
+export const getProductsCate = async (category) => {
+    try {
+        const ress = await Product.find({ category: { $regex: category, $options: 'i' } }).sort({ _id: -1 }).exec();
+        return ress;
+    } catch (err) {
+        throw err;
+    }
+};
 
-export const getProductsCate = (category) => {
+export const getAmounts = async (category) => {
+    try {
+        let query = category === "all" ? {} : { category: { $regex: category, $options: 'i' } };
+        const products = await Product.find(query).sort({ amount: 1 }).exec();
+        return products.map(product => product.amount);
+    } catch (err) {
+        throw err;
+    }
+};
 
-    return new Promise((resolve, reject) => {
-        db.all("SELECT * FROM products WHERE category LIKE ? ORDER BY id DESC", [`%${category}%`], (err, ress) => {
-            if (err) {
-                return reject(err);
-            }
-            resolve(ress);
-        })
-    })
-}
-
-export const getAmounts = (category) => {
-    return new Promise((resolve, reject) => {
+export const fetchProductsSpec = async (filter, category) => {
+    try {
+        let product;
         if (category === "all") {
-            db.all(sql.SELECT_PRODUCT + " ORDER BY amount", (err, products) => {
-                if (err) return reject(err);
-                resolve(products.map(product => product.amount));
-            })
+            product = await Product.find();
         } else {
-            db.all(sql.SELECT_PRODUCT + " WHERE category LIKE ? ORDER BY amount", [`%${category}`], (err, products) => {
-                if (err) return reject(err);
-                resolve(products.map(product => product.amount));
-            })
+            product = await Product.find({ category });
         }
-    })
-}
 
-export const fetchProductsSpec = (filter, category) => {
-    return new Promise((resolve, reject) => {
-        if (filter.includes(" - ")) {
-            const filterValues = filter.split(' - ');
-            db.all(
-                "SELECT * FROM products WHERE LOWER(specifiction) LIKE ? AND LOWER(specifiction) LIKE ?",
-                [`%${filterValues[0].toLowerCase()}%`, `%${filterValues[1].toLowerCase()}%`],
-                (err, results) => {
-                    if (err) return reject(err);
-                    resolve(results);
-                }
-            );
-        } else if (category === 'all') {
+        let results = await Promise.all(product.filter(prod => {
+            let spec = JSON.stringify(prod.specification);
 
-            db.all("SELECT * FROM products WHERE LOWER(specifiction) LIKE ?", [`%${filter.toLowerCase()}%`], (err, results) => {
-                if (err) return reject(err);
-                resolve(results);
-            })
-        } else
-            db.all("SELECT * FROM products WHERE LOWER(specifiction) LIKE ? AND category=?", [`%${filter.toLowerCase()}%`, category], (err, results) => {
-                if (err) return reject(err);
-                resolve(results);
-            })
-    })
-}
-
-export const filter_rating = (rating, category) => {
-
-    return new Promise((resolve, reject) => {
-        if (category !== "all") {
-            db.all("SELECT * FROM products WHERE rating >= ? AND rating <= ? AND category = ?", [rating, rating + 1, category], (err, results) => {
-                if (err) return reject(err);
-                resolve(results);
-            })
-        } else {
-            db.all("SELECT * FROM products WHERE rating >= ? AND rating <= ?", [rating, rating + 1], (err, results) => {
-                if (err) return reject(err);
-                resolve(results);
-            })
-        }
-    })
-
-}
-
-export const getOutOfStackProducts = () => {
-    return new Promise((resolve, reject) => {
-        db.all("SELECT * FROM products WHERE quantity < 1", (err, results) => {
-            if (err) {
-                return reject(err);
+            if (spec.toLowerCase().includes(filter.toLowerCase())) {
+                return true;
+            } else {
+                return false;
             }
-            resolve(results);
-        })
-    })
-}
+
+        }));
+
+        return results;
+    } catch (err) {
+        console.error(err);
+        throw err.message;
+    }
+};
+
+
+export const filter_rating = async (rating, category) => {
+    try {
+        let query = category !== "all" ?
+            { rating: { $gte: rating, $lt: rating + 1 }, category: category } :
+            { rating: { $gte: rating, $lt: rating + 1 } };
+
+        const results = await Product.find(query).exec();
+        return results;
+    } catch (err) {
+        throw err;
+    }
+};
+
+export const getOutOfStackProducts = async () => {
+    try {
+        const results = await Product.find({ quantity: { $lt: 1 } }).exec();
+        return results;
+    } catch (err) {
+        throw err;
+    }
+};

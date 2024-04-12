@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getCartItems, addItemToCart, deleteItemFromCart, updateItemQuantityCart, updateToOrdered, getOrderedItems, getReturnedProducts } from "../controller/cart.controller.js";
+import { getCartItems, deleteItemFromCart, updateItemQuantityCart, addItemToCart, } from "../controller/cart.controller.js";
 import { authonticatedUser } from "../controller/user.controller.js";
 import { adminAccess, authonticatedAdmin } from "../controller/admin.controller.js";
 
@@ -16,7 +16,7 @@ router.get('/get-cart/:user_id', authonticatedUser, (req, res) => {
 });
 
 router.post('/new-cart', authonticatedUser, (req, res) => {
-    addItemToCart(req.body.product_id, req.body.productName, req.body.price, req.body.quantity, req.body.user_id, req.body.ordered, req.body.product_qty).then((cart) => {
+    addItemToCart(req.body.product, req.body.quantity, req.body.user).then((cart) => {
         res.send(cart)
     }).catch((err) => {
         res.status(404).send(err)

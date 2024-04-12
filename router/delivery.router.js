@@ -13,7 +13,8 @@ router.get('/get-dtl/:user_id', authonticatedUser, (req, res) => {
 
 
 router.post('/add-dtl', authonticatedUser, (req, res) => {
-    addDtl(req.body.user_id, req.body.address, req.body.phone, req.body.email).then((response) => {
+    console.log(req.body)
+    addDtl(req.body).then((response) => {
         res.status(200).send(response);
     }).catch((err) => {
         res.status(500).send(err);

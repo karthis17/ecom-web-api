@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { addItemToOrder, getAll, getAllReturned, getOrderHistory, returnProduct, setDeliveryStatus, setTrackId } from "../controller/order.controller.js";
+import { addItemToOrder, getAll, getAllReturned, getOrderHistory, returnProduct, setDeliveryStatus, setTrackId, udateReturn_status } from "../controller/order.controller.js";
 import { authonticatedUser } from "../controller/user.controller.js";
 import { authonticatedAdmin } from "../controller/admin.controller.js";
 
@@ -15,7 +15,8 @@ router.get('/getOrders/:user_id', authonticatedUser, (req, res) => {
 });
 
 router.post('/addOrder', authonticatedUser, (req, res) => {
-    addItemToOrder(req.body.user_id, req.body.phone, req.body.payment, req.body.address, req.body.name, req.body.email).then((response) => {
+    console.log(req.body);
+    addItemToOrder(req.body.user_id, req.body.payment, req.body.delivery_address,).then((response) => {
         res.send(response);
     }).catch((err) => {
         res.status(500).send(err);
@@ -38,7 +39,7 @@ router.get('/get-all-returned', authonticatedAdmin, (req, res) => {
     });
 });
 router.post('/return-product', authonticatedUser, (req, res) => {
-    returnProduct(req.body.product_id, req.body.order_id, req.body.quantity, req.body.id, req.body.resone).then((orders) => {
+    returnProduct(req.body.order_id, req.body.resone).then((orders) => {
         res.send(orders);
     }).catch((err) => {
         res.status(500).send(err);
@@ -56,6 +57,11 @@ router.post('/tracking-id', (req, res) => {
     console.log(req.body)
     setTrackId(req.body.trackId, req.body.id, req.body.user).then((ress) => { res.send(ress); }).catch((err) => { res.status(500).send(err) });
 })
+
+
+router.put('/update-return-status', (req, res) => {
+    udateReturn_status(req.body.id, req.body.status).then((ress) => { res.send(ress); }).catch((err) => { res.status(500).send(err) });
+});
 
 
 export default router;

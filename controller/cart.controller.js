@@ -1,4 +1,5 @@
-import { db } from "../model/product.model.js";
+import { Cart } from "../model/cart.model.js";
+// import { db } from "../model/product.model.js";
 
 
 let sql = {
@@ -11,114 +12,175 @@ let sql = {
     UPDATE_ORDER_ID: `UPDATE cart_list SET order_id = ? WHERE user_id = ? AND ordered = 1 AND order_id IS NULL`,
 }
 
-export const getCartItems = (user_id, orderd = 0) => {
+export const getCartItems = async (user_id) => {
 
-    return new Promise((resolve, reject) => {
-        db.all(sql.SELECT_CART, [user_id, orderd], (err, result) => {
-            if (err) {
-                return reject(err);
-            }
-            resolve(result);
+    // return new Promise((resolve, reject) => {
+    //     db.all(sql.SELECT_CART, [user_id, orderd], (err, result) => {
+    //         if (err) {
+    //             return reject(err);
+    //         }
+    //         resolve(result);
+    //     });
+    // });
+
+    try {
+        const cart = await Cart.find({ user: user_id }).populate('product').populate('user');
+        return cart
+    } catch (error) {
+        throw error
+    }
+
+}
+
+export const addItemToCart = async (product_id, quantity, user_id,) => {
+
+    // return new Promise((resolve, reject) => {
+    //     db.run(sql.INSERT_CART, [product_id, productName, price, quantity, user_id, quantity * price, ordered, product_qty], function (err, result) {
+    //         if (err) {
+    //             return reject(err);
+    //         }
+
+    //         resolve({ success: true, message: "Cart added successfully", id: this.lastID });
+    //     })
+    // })
+
+    try {
+        // Create a new cart item
+        const cart = new Cart({
+            product: product_id, // Assuming product_id is the ObjectId of the product
+            user: user_id, // Assuming user_id is the ObjectId of the user
+            quantity: quantity,
         });
-    });
+
+        // Save the cart item
+        await cart.save();
+
+        console.log('Cart'.cart)
+
+        // Populate the product field to access the product details
+        await cart.populate('product');
+
+        // Access the populated product details
+        const populatedCart = cart; // Convert cart to a plain JavaScript object
+        console.log(populatedCart);
+        const product = populatedCart.product;
+
+        // Calculate the total price for the cart item
+        const total = product.amount * quantity;
+
+        // Update the total field in the cart item
+        cart.total = total;
+
+        // Save the updated cart item
+        console.log(cart);;
+        await cart.save();
+
+        // Return the cart item
+        return cart;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+
 
 }
 
-export const addItemToCart = (product_id, productName, price, quantity, user_id, ordered, product_qty) => {
-
-    return new Promise((resolve, reject) => {
-        db.run(sql.INSERT_CART, [product_id, productName, price, quantity, user_id, quantity * price, ordered, product_qty], function (err, result) {
-            if (err) {
-                return reject(err);
-            }
-
-            resolve({ success: true, message: "Cart added successfully", id: this.lastID });
-        })
-    })
-
-}
-
-export const deleteItemFromCart = (id) => {
+export const deleteItemFromCart = async (id) => {
 
 
-    return new Promise((resolve, reject) => {
-        db.run(sql.DELETE_CART_ITEM, [id], (err, result) => {
-            if (err) {
-                return reject(err);
-            }
+    // return new Promise((resolve, reject) => {
+    //     db.run(sql.DELETE_CART_ITEM, [id], (err, result) => {
+    //         if (err) {
+    //             return reject(err);
+    //         }
 
-            resolve({ success: true, message: "deleted successfully" });
-        })
-    });
+    //         resolve({ success: true, message: "deleted successfully" });
+    //     })
+    // });
+
+    try {
+
+        return await Cart.deleteOne({ _id: id })
+    } catch (e) {
+        throw e;
+    }
 
 }
 
-export const updateItemQuantityCart = (id, quantity, total) => {
+export const updateItemQuantityCart = async (id, quantity, total) => {
 
-    return new Promise((resolve, reject) => {
-        db.run(sql.UPDATE_QTY, [quantity, total, id], (err, result) => {
-            if (err) {
-                return reject(err);
-            }
-            resolve({ success: true, message: "updated successfully" });
-        });
-    });
+    // return new Promise((resolve, reject) => {
+    //     db.run(sql.UPDATE_QTY, [quantity, total, id], (err, result) => {
+    //         if (err) {
+    //             return reject(err);
+    //         }
+    //         resolve({ success: true, message: "updated successfully" });
+    //     });
+    // });
 
-}
+    try {
+        const cart = await Cart.findByIdAndUpdate(id, { $set: { quantity: quantity, total: total } });
 
-export const updateToOrdered = (user_id) => {
-
-
-    return new Promise((resolve, reject) => {
-        db.run(sql.UPDATE_TO_ORDER, [user_id], (err, result) => {
-            if (err) {
-                return reject(err);
-            }
-            let qty = [];
-            getCartItems(user_id, 1).then(async (items) => {
-                await items.forEach((item) => {
-                    qty.push({ quantity: item.quantity, name: item.productName })
-                })
-                resolve({ success: true, message: "updated successfully", items: qty });
-            });
-        });
-    });
+        return { success: true, message: "updated successfully" };
+    } catch (error) {
+        throw { success: false, message: error.message };
+    }
 
 }
 
-export const addOrderId = (user_id, order_id) => {
-    console.log(user_id, order_id);
-    return new Promise((resolve, reject) => {
-        db.run(sql.UPDATE_ORDER_ID, [order_id, user_id], (err, res) => {
-            if (err) {
-                return reject(err);
-            }
-            resolve({ success: true, message: "updated successfully" })
-        });
-    });
-}
+// export const updateToOrdered = (user_id) => {
 
 
-export const getOrderedItems = (order_id) => {
+//     return new Promise((resolve, reject) => {
+//         db.run(sql.UPDATE_TO_ORDER, [user_id], (err, result) => {
+//             if (err) {
+//                 return reject(err);
+//             }
+//             let qty = [];
+//             getCartItems(user_id, 1).then(async (items) => {
+//                 await items.forEach((item) => {
+//                     qty.push({ quantity: item.quantity, name: item.productName })
+//                 })
+//                 resolve({ success: true, message: "updated successfully", items: qty });
+//             });
+//         });
+//     });
 
-    return new Promise((resolve, reject) => {
-        db.all(sql.SELECT_ORDERED, [order_id], (err, res) => {
-            if (err) {
-                return reject(err);
-            }
-            resolve(res);
-        });
-    });
+// }
 
-}
+// export const addOrderId = (user_id, order_id) => {
+//     console.log(user_id, order_id);
+//     return new Promise((resolve, reject) => {
+//         db.run(sql.UPDATE_ORDER_ID, [order_id, user_id], (err, res) => {
+//             if (err) {
+//                 return reject(err);
+//             }
+//             resolve({ success: true, message: "updated successfully" })
+//         });
+//     });
+// }
 
-export const getReturnedProducts = (order_id) => {
-    return new Promise((resolve, reject) => {
-        db.all("SELECT * FROM cart_list WHERE order_id = ? AND returned = 1", [order_id], (err, res) => {
-            console.log(res)
-            if (err) { return reject(err); }
 
-            resolve(res);
-        })
-    })
-}
+// export const getOrderedItems = (order_id) => {
+
+//     return new Promise((resolve, reject) => {
+//         db.all(sql.SELECT_ORDERED, [order_id], (err, res) => {
+//             if (err) {
+//                 return reject(err);
+//             }
+//             resolve(res);
+//         });
+//     });
+
+// }
+
+// export const getReturnedProducts = (order_id) => {
+//     return new Promise((resolve, reject) => {
+//         db.all("SELECT * FROM cart_list WHERE order_id = ? AND returned = 1", [order_id], (err, res) => {
+//             console.log(res)
+//             if (err) { return reject(err); }
+
+//             resolve(res);
+//         })
+//     })
+// }

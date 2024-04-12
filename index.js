@@ -8,6 +8,7 @@ import dtlRouter from './router/delivery.router.js';
 import reviewRouter from './router/review.router.js';
 import { admin, adminLogin } from './controller/admin.controller.js';
 import cookieParser from 'cookie-parser';
+import mongoose from 'mongoose';
 
 
 const app = express();
@@ -57,6 +58,8 @@ app.get('/user', (req, res) => {
     });
 });
 
-app.listen(port, (req, res) => {
-    console.log('listening om port: ' + port + " http://localhost:" + port);
-});
+mongoose.connect("mongodb+srv://karthirs602:adminkarthi@cluster0.camz86p.mongodb.net/fastkart?retryWrites=true&w=majority").then((res) => {
+    app.listen(port, (req, res) => {
+        console.log(`listening on port ${port} on http://localhost:${port}`);
+    });
+}).catch((err) => console.log(err));
