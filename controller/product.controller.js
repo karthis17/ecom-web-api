@@ -124,49 +124,8 @@ export const reduceQuantity = (productName, quantity) => {
     });
 }
 
-export const filter = (price, about, category) => {
+export const filter = async (price, about, category) => {
 
-    return new Promise(async (resolve, reject) => {
-        try {
-            let query = {};
-
-            if (price && about && category) {
-                query = {
-                    amount: { $gt: price[0], $lt: price[1] },
-                    about: { $regex: about, $options: 'i' },
-                    category: { $regex: category, $options: 'i' }
-                };
-            } else if (price && about) {
-                query = {
-                    amount: { $gte: price[0], $lte: price[1] },
-                    about: { $regex: about, $options: 'i' }
-                };
-            } else if (price && category) {
-                query = {
-                    amount: { $gte: price[0], $lte: price[1] },
-                    category: { $regex: category, $options: 'i' }
-                };
-            } else if (category && about) {
-                query = {
-                    about: { $regex: about, $options: 'i' },
-                    category: { $regex: category, $options: 'i' }
-                };
-            } else if (price) {
-                query = { amount: { $gte: price[0], $lte: price[1] } };
-            } else if (about) {
-                query = { about: { $regex: about, $options: 'i' } };
-            } else {
-                query = { category: { $regex: category, $options: 'i' } };
-            }
-
-            const result = await Product.find(query).exec();
-            console.log('Generated Query:', query);
-
-            resolve(result);
-        } catch (err) {
-            reject(err);
-        }
-    });
 
 }
 
@@ -286,3 +245,54 @@ export const getOutOfStackProducts = async () => {
         throw err;
     }
 };
+
+export const getProductsByCategoryLimited = async () => {
+    try {
+        const categoryProducts = await Product.aggregate([
+            // Sort by category, with "PCs & Laptops" first
+            {
+                $addFields: {
+                    sortKey: { $cond: { if: { $eq: ["$category", "PCs & Laptops"] }, then: 0, else: 1 } }
+                }
+            },
+            { $sort: { sortKey: 1 } },
+            { $unset: "sortKey" }, // Remove the temporary sort key
+            // Group products by category
+            {
+                $group: {
+                    _id: "$category",
+                    products: { $push: "$$ROOT" }
+                }
+            },
+            // Project to limit each category to 4 products
+            {
+                $project: {
+                    _id: 0,
+                    category: "$_id",
+                    products: { $slice: ["$products", 4] }
+                }
+            }
+        ]);
+
+        return categoryProducts.reduce((acc, cur) => {
+            acc[cur.category] = cur.products;
+            return acc;
+        }, {});
+    } catch (error) {
+        console.error('Error fetching products:', error);
+        throw error;
+    }
+};
+
+export const newArraivels = async () => {
+    try {
+        const product = await Product.find().sort({ createdAt: -1 }).limit(8);
+
+        return product;
+    } catch (error) {
+        throw error.message;
+    }
+}
+
+
+

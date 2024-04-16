@@ -46,6 +46,18 @@ export const addItemToCart = async (product_id, quantity, user_id,) => {
 
     try {
         // Create a new cart item
+
+        let existingCart = await Cart.findOne({ product: product_id, user: user_id });
+
+        if (existingCart) {
+            existingCart.quantity += quantity;
+            existingCart.total = existingCart.amount * existingCart.quantity;
+
+            await existingCart.save();
+
+            return existingCart;
+        }
+
         const cart = new Cart({
             product: product_id, // Assuming product_id is the ObjectId of the product
             user: user_id, // Assuming user_id is the ObjectId of the user
@@ -55,7 +67,8 @@ export const addItemToCart = async (product_id, quantity, user_id,) => {
         // Save the cart item
         await cart.save();
 
-        console.log('Cart'.cart)
+        console.log('Cart', cart);
+
 
         // Populate the product field to access the product details
         await cart.populate('product');
