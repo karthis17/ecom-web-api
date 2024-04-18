@@ -18,7 +18,9 @@ const port = 3000;
 app.use(express.json());
 app.use(cors({
     credentials: true,
-    origin: ["http://localhost:4200", "http://localhost:3000", "*", "https://ecom-web-lovat.vercel.app"]
+    origin: ["http://localhost:4200", "http://localhost:3000", "*", "https://ecom-web-lovat.vercel.app"],
+
+    exposedHeaders: ["Set-cookie"],
 }));
 
 
