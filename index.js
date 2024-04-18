@@ -46,8 +46,8 @@ app.post('/admin', function (req, res) {
 
         res.cookie("admin", ress, {
             httpOnly: true,
-            maxAge: 24 * 60 * 60 * 1000,
-            origin: ["*"],
+            secure: true,
+            overwrite: true,
             credential: true,
         })
 

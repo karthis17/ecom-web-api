@@ -7,6 +7,8 @@ const router = new Router();
 const createCookie = (response, data) => {
     return response.cookie("user", data, {
         httpOnly: true,
+        secure: true,
+        overwrite: true,
         maxAge: (24 * 60 * 60 * 1000) * 15
     });
 }

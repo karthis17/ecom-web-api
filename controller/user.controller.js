@@ -230,7 +230,6 @@ export const resetPassword = async (email, newPassword) => {
 
 export const authonticatedUser = (req, res, next) => {
     const token = req.cookies["user"];
-    console.log(token, req.cookies);
     if (token) {
         const claims = jwt.verify(token, process.env.SECRET_KEY);
         // console.log(claims)
