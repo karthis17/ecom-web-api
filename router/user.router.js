@@ -7,8 +7,6 @@ const router = new Router();
 const createCookie = (response, data) => {
     return response.cookie("user", data, {
         httpOnly: true,
-        origin: ["*"],
-        credential: true,
         maxAge: (24 * 60 * 60 * 1000) * 15
     });
 }
@@ -29,7 +27,8 @@ router.post('/register', (req, res) => {
 
 router.post('/login', (req, res) => {
     login(req.body.email, req.body.password).then((user) => {
-        createCookie(res, user.token);
+
+        console.log(createCookie(res, user.token))
         res.send(user)
     }).catch((err) => {
         res.status(404).send(err)
