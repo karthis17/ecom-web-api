@@ -14,7 +14,7 @@ router.get('/get-reviews/:p_id', (req, res) => {
 
 
 router.post('/add-review', authonticatedUser, (req, res) => {
-    addReivew(req.body.product, req.body.comment, req.body.rating, req.body.user).then((ress) => {
+    addReivew(req.body.product, req.body.comment, req.body.rating, req.user).then((ress) => {
         res.send(ress);
     }).catch((err) => {
         res.status(404).send(err);

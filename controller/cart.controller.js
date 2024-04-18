@@ -47,11 +47,11 @@ export const addItemToCart = async (product_id, quantity, user_id,) => {
     try {
         // Create a new cart item
 
-        let existingCart = await Cart.findOne({ product: product_id, user: user_id });
+        let existingCart = await Cart.findOne({ product: product_id, user: user_id }).populate('product');
 
         if (existingCart) {
             existingCart.quantity += quantity;
-            existingCart.total = existingCart.amount * existingCart.quantity;
+            existingCart.total = existingCart.product.amount * existingCart.quantity;
 
             await existingCart.save();
 

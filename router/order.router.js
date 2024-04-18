@@ -6,8 +6,8 @@ import { authonticatedAdmin } from "../controller/admin.controller.js";
 const router = new Router();
 
 
-router.get('/getOrders/:user_id', authonticatedUser, (req, res) => {
-    getOrderHistory(req.params.user_id).then((response) => {
+router.get('/getOrders', authonticatedUser, (req, res) => {
+    getOrderHistory(req.user).then((response) => {
         res.send(response);
     }).catch((err) => {
         res.status(500).send(err);
@@ -16,7 +16,7 @@ router.get('/getOrders/:user_id', authonticatedUser, (req, res) => {
 
 router.post('/addOrder', authonticatedUser, (req, res) => {
     console.log(req.body);
-    addItemToOrder(req.body.user_id, req.body.payment, req.body.delivery_address,).then((response) => {
+    addItemToOrder(req.user, req.body.payment, req.body.delivery_address,).then((response) => {
         res.send(response);
     }).catch((err) => {
         res.status(500).send(err);

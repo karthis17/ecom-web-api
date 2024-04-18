@@ -9,6 +9,7 @@ import reviewRouter from './router/review.router.js';
 import { admin, adminLogin } from './controller/admin.controller.js';
 import cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
+import wishRouter from './router/wish.router.js'
 
 
 const app = express();
@@ -21,7 +22,11 @@ app.use(cors({
 }));
 
 
-app.use(cookieParser());
+app.use(cookieParser({
+    credentials: true,
+    origin: ["http://localhost:4200", "http://localhost:3000", "*", "https://ecom-web-lovat.vercel.app"]
+
+}));
 
 
 app.use("/api/product", productRouter);
@@ -30,6 +35,7 @@ app.use("/api/cart", cartRouter);
 app.use("/api/order", orderRouter);
 app.use("/api/deliver-details", dtlRouter);
 app.use("/api/reviews", reviewRouter);
+app.use("/api", wishRouter);
 app.get("/del", (req, res) => {
     res.clearCookie('user');
     res.send("hi")

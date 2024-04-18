@@ -6,8 +6,8 @@ import { adminAccess, authonticatedAdmin } from "../controller/admin.controller.
 const router = new Router();
 
 
-router.get('/get-cart/:user_id', authonticatedUser, (req, res) => {
-    getCartItems(req.params.user_id).then((cart) => {
+router.get('/get-cart', authonticatedUser, (req, res) => {
+    getCartItems(req.user).then((cart) => {
         res.send(cart);
     }).catch((err) => {
         res.status(404).send(err)
@@ -16,7 +16,7 @@ router.get('/get-cart/:user_id', authonticatedUser, (req, res) => {
 });
 
 router.post('/new-cart', authonticatedUser, (req, res) => {
-    addItemToCart(req.body.product, req.body.quantity, req.body.user).then((cart) => {
+    addItemToCart(req.body.product, req.body.quantity, req.user).then((cart) => {
         res.send(cart)
     }).catch((err) => {
         res.status(404).send(err)
@@ -44,7 +44,7 @@ router.post('/update-qty', authonticatedUser, (req, res) => {
 
 
 router.get('/ordered/:user_id', authonticatedUser, (req, res) => {
-    updateToOrdered(req.params.user_id).then((user) => {
+    updateToOrdered(req.user).then((user) => {
         res.status(200).send(user)
     }).catch((err) => {
         res.status(404).send(err);
