@@ -236,6 +236,7 @@ export const authonticatedUser = (req, res, next) => {
         if (!claims) {
             res.status(400).send({ success: false, message: "Unauthorized" });
         } else {
+            console.log(claims);
             req.user = claims.id;
             next()
         }
