@@ -49,8 +49,7 @@ app.post('/admin', function (req, res) {
         res.cookie("admin", ress, {
             httpOnly: true,
             secure: true,
-            overwrite: true,
-            domain: ".onrender.com",
+            sameSite: "none",
         })
 
         res.send({
