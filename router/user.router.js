@@ -40,7 +40,6 @@ router.post('/login', (req, res) => {
 
 router.get('/get-user', (req, res) => {
     const token = req.cookies['user'];
-    console.log('token', token);
     if (token) {
 
         getUserData(token).then((response) => {

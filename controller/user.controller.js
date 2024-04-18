@@ -202,7 +202,6 @@ export const resetPassword = async (email, newPassword) => {
         const salt = await bcrypt.genSalt(5);
         const hashPassword = await bcrypt.hash(newPassword, salt);
 
-        console.log(hashPassword);
 
         const user = await User.findOne({ email });
         user.password = hashPassword;
@@ -236,7 +235,6 @@ export const authonticatedUser = (req, res, next) => {
         if (!claims) {
             res.status(400).send({ success: false, message: "Unauthorized" });
         } else {
-            console.log(claims);
             req.user = claims.id;
             next()
         }

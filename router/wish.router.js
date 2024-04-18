@@ -9,7 +9,7 @@ router.get('/wish-list', authonticatedUser, async function (req, res) {
     try {
         const wish = await Wish.find({ user: req.user }).populate('product').populate('user');
 
-        res.send(wish);
+        res.send({ wish, productId: wish.map(w => w.product._id) });
 
     } catch (error) {
         res.status(404).send(error.message);
@@ -21,8 +21,16 @@ router.post('/wish-list', authonticatedUser, async function (req, res) {
 
     const { product } = req.body;
 
-    console.log(product)
     try {
+
+        const existingwish = await Wish.findOne({ user: req.user, product: product });
+
+        if (existingwish) {
+            await Wish.deleteOne({ _id: existingwish._id });
+
+            return res.send({ success: true, message: "product unliked" });
+        }
+
         const wish = new Wish({
             user: req.user,
             product
