@@ -9,6 +9,7 @@ const createCookie = (response, data) => {
         httpOnly: true,
         secure: true,
         overwrite: true,
+        domain: ".onrender.com",
         maxAge: (24 * 60 * 60 * 1000) * 15
     });
 }

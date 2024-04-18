@@ -48,7 +48,7 @@ app.post('/admin', function (req, res) {
             httpOnly: true,
             secure: true,
             overwrite: true,
-            credential: true,
+            domain: ".onrender.com",
         })
 
         res.send({
