@@ -10,6 +10,7 @@ import { admin, adminLogin } from './controller/admin.controller.js';
 import cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
 import wishRouter from './router/wish.router.js'
+import brandRouter from './router/brand.js'
 
 
 const app = express();
@@ -38,6 +39,7 @@ app.use("/api/order", orderRouter);
 app.use("/api/deliver-details", dtlRouter);
 app.use("/api/reviews", reviewRouter);
 app.use("/api", wishRouter);
+app.use("/api", brandRouter);
 app.get("/del", (req, res) => {
     res.clearCookie('user');
     res.send("hi")

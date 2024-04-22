@@ -76,6 +76,7 @@ router.get('/like', async (req, res) => {
         const rating = req.query.rating ? parseInt(req.query.rating) : undefined;
         const discountMin = req.query.discountMin || 0;
         const discountMax = req.query.discountMax || 100;
+        const brandName = req.query.brandName;
         const min = parseInt(req.query.min) || 0;
         const max = parseInt(req.query.max) || Number.MAX_SAFE_INTEGER;
 
@@ -89,13 +90,17 @@ router.get('/like', async (req, res) => {
             productName: { $regex: search, $options: "i" },
             amount: { $gte: min, $lte: max },
             discount: { $gte: discountMin, $lte: discountMax },
-            category: { $in: category }
-
+            category: { $in: category },
         };
 
         if (rating !== undefined) {
             query.rating = rating;
         }
+
+        if (brandName) {
+            query["specification.Brand"] = { $regex: brandName, $options: "i" }
+        }
+
 
         console.log(query);
 
