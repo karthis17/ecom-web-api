@@ -12,6 +12,8 @@ import mongoose from 'mongoose';
 import wishRouter from './router/wish.router.js'
 import brandRouter from './router/brand.js'
 import payment_route from './router/order.js';
+import invoice from './router/invoice.js';
+import chart from './router/chart.js';
 
 
 const app = express();
@@ -42,6 +44,8 @@ app.use("/api/reviews", reviewRouter);
 app.use("/api", wishRouter);
 app.use("/api", brandRouter);
 app.use("/api/payment", payment_route);
+app.use("/api/chart", chart);
+app.use("/api/invoice", invoice);
 app.get("/del", (req, res) => {
     res.clearCookie('user');
     res.send("hi")
