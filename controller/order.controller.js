@@ -21,7 +21,7 @@ export const getOrderHistory = async (user_id) => {
             path: 'user'
         }).populate({
             path: 'delivery_address'
-        });
+        }).sort({ createdAt: - 1 });
 
         return orders;
 
@@ -107,8 +107,7 @@ export const getAll = async () => {
             path: 'user'
         }).populate({
             path: 'delivery_address'
-        });
-        ;
+        }).sort({ createdAt: -1 })
     } catch (error) {
         throw error;
     }
@@ -131,8 +130,7 @@ export const getAllReturned = async () => {
             path: 'user'
         }).populate({
             path: 'delivery_address'
-        });
-        ;
+        }).sort({ createdAt: -1 })
     } catch (error) {
         throw error;
     }
@@ -159,7 +157,7 @@ export const returnProduct = async (order_id, resone) => {
             path: 'user'
         }).populate({
             path: 'delivery_address'
-        });
+        }).sort({ createdAt: -1 });
 
 
         order.is_returned = true;
@@ -526,7 +524,7 @@ export const order_filter = async (status, order_time, user) => {
             path: 'user'
         }).populate({
             path: 'delivery_address'
-        });
+        }).sort({ createdAt: -1 });
 
 
         console.log(orders)
