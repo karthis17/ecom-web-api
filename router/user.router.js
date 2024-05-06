@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { register, login, getUserData, forgotPassword, resetPassword } from "../controller/user.controller.js";
+import { register, login, getUserData, forgotPassword, resetPassword, sendotp } from "../controller/user.controller.js";
 
 
 const router = new Router();
@@ -67,6 +67,22 @@ router.post('/forgot-password', (req, res) => {
 router.post('/reset-password', (req, res) => {
     console.log(req.body)
     resetPassword(req.body.email, req.body.password).then((ress) => { res.send(ress) }).catch((err) => { res.status(500).send(err) });
+})
+
+
+router.post('/otp', async (req, res) => {
+
+    const { email } = req.body;
+
+    if (!email) {
+        return res.status(404).send({ success: false, message: 'Email not found, Please provide a valid email' });
+    }
+
+    sendotp(email).then((otp) => {
+        res.send(otp);
+    }).catch((err) => {
+        res.status(500).send(err)
+    });
 })
 
 export default router;

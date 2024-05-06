@@ -194,6 +194,93 @@ export const forgotPassword = (email) => {
     })
 }
 
+export const sendotp = (email) => {
+    return new Promise(async (resolve, reject) => {
+        const existingUser = await User.findOne({ email });
+
+        if (existingUser) {
+            return resolve({
+                success: false,
+                message: 'User already exists.',
+                err: 'email'
+            })
+        }
+
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env.user,
+                pass: process.env.pass
+            }
+        });
+
+        const OTP = Math.floor(1000 + Math.random() * 9000); // Generate OTP
+
+
+        const mailOptions = {
+            from: 'recoverid166@gmail.com',
+            to: email,
+            subject: 'Sending Email using Node.js',
+            html: `
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Forgot Password OTP</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    background-color: #f4f4f4;
+                    padding: 20px;
+                }
+                .container {
+                    max-width: 600px;
+                    margin: 0 auto;
+                    background-color: #fff;
+                    padding: 20px;
+                    border-radius: 8px;
+                    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                }
+                .otp {
+                    font-size: 24px;
+                    font-weight: bold;
+                    text-align: center;
+                    margin-top: 20px;
+                }
+                a {
+                    color: rgb(255, 89, 0);
+                    text-decoration: none;
+
+                }
+            </style>
+            </head>
+            <body>
+            <div class="container">
+                <p>You have requested to reset your password. Use the OTP below to verify your identity:</p>
+                <p class="otp">${OTP}</p>
+                <p>If you didn't request a password reset, please ignore this email.</p>
+                <a href="https://replica-gifts-frontend.vercel.app/" target="_blank">Replica Gifts</a>
+            </div>
+            </body>
+            </html>
+
+        `
+        };
+
+        transporter.sendMail(mailOptions, function (error, info) {
+            if (error) {
+                console.log(error);
+                return reject({ error: error.message });
+            } else {
+                console.log('Email sent: ' + info.response);
+                return resolve({ success: true, message: info.response, otp: OTP });
+            }
+        });
+
+    })
+}
+
 export const resetPassword = async (email, newPassword) => {
 
 
